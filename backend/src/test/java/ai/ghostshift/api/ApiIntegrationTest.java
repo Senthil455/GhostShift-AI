@@ -35,6 +35,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @MicronautTest
+@io.micronaut.context.annotation.Property(name = "micronaut.server.port", value = "-1")
+@io.micronaut.context.annotation.Property(name = "ghostshift.data-dir", value = "build/test-data/api")
 class ApiIntegrationTest {
     @Inject
     @Client("/")

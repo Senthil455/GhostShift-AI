@@ -29,6 +29,14 @@ public record WorkflowContext(
         String warning,
         boolean explicitApprovalGranted
 ) {
+    public WorkflowContext {
+        files = files == null ? new ArrayList<>() : files;
+        selectedFileIds = selectedFileIds == null ? new ArrayList<>() : selectedFileIds;
+        classifications = classifications == null ? new LinkedHashMap<>() : classifications;
+        proposedMoves = proposedMoves == null ? new ArrayList<>() : proposedMoves;
+        moveResults = moveResults == null ? new ArrayList<>() : moveResults;
+    }
+
     public static WorkflowContext empty(Long directoryId, String directoryName) {
         return new WorkflowContext(1, directoryId, directoryName, new ArrayList<>(), new ArrayList<>(),
                 new LinkedHashMap<>(), new ArrayList<>(), null, null, null, new ArrayList<>(), null, false);
