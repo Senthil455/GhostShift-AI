@@ -137,53 +137,56 @@ onMounted(() => {
   <p v-if="error" class="dashboard-error" role="alert">{{ error }}</p>
 
   <template v-if="dashboard">
-    <section class="shift-stage" aria-label="Live workspace archive">
-      <div class="shift-stage__copy">
-        <p class="shift-stage__label"><span /> Live archive</p>
-        <h2>Six modules.<br />One shift.</h2>
-        <p class="shift-stage__lede">
+    <section class="board" aria-label="Live workspace archive">
+      <div class="tally">
+        <div class="tally__head">
+          <h2>Shift board</h2>
+          <span>{{ today }}</span>
+        </div>
+        <dl class="tally__figures">
+          <div class="tally__figure">
+            <dt>Workflows</dt>
+            <dd class="numeric">{{ dashboard.totalWorkflows }}</dd>
+            <p>{{ dashboard.recentRuns.length ? 'Versioned and reviewable' : 'Examples are ready to run' }}</p>
+          </div>
+          <div class="tally__figure">
+            <dt>Completed runs</dt>
+            <dd class="numeric">{{ dashboard.completedRuns }}</dd>
+            <p>{{ dashboard.totalRuns }} total · {{ dashboard.runsNeedingIntervention }} need attention</p>
+          </div>
+          <div class="tally__figure">
+            <dt>Files organized</dt>
+            <dd class="numeric">{{ dashboard.filesOrganized }}</dd>
+            <p>{{ dashboard.filesScanned }} {{ plural(dashboard.filesScanned, 'file') }} reviewed in plans</p>
+          </div>
+          <div class="tally__figure">
+            <dt>Time returned</dt>
+            <dd class="numeric">{{ minutes(dashboard.estimatedMinutesSaved) }}</dd>
+            <p>Assumption-based, never a verified study</p>
+          </div>
+        </dl>
+        <p class="tally__note">
           The workspace is a stack of records, not a feed. Move through it by module, then inspect the exact plan,
           approval, or receipt.
         </p>
-        <div class="shift-stage__facts">
-          <div>
-            <span class="numeric">{{ dashboard.totalWorkflows }}</span>
-            <p>reviewable workflows</p>
-          </div>
-          <div>
-            <span class="numeric">{{ dashboard.pendingApprovals }}</span>
-            <p>waiting for you</p>
-          </div>
-          <div>
-            <span>{{ session.aiOnline ? 'Ready' : 'Local rules' }}</span>
-            <p>GhostBrain state</p>
-          </div>
-        </div>
       </div>
+
       <GhostLedger mode="compact" interactive />
     </section>
 
-    <section class="stat-grid dashboard-stats" aria-label="Workspace summary">
-      <div class="stat">
-        <p class="stat__label">Workflows</p>
-        <p class="stat__value numeric">{{ dashboard.totalWorkflows }}</p>
-        <p class="stat__sub">{{ dashboard.recentRuns.length ? 'Versioned and reviewable' : 'Examples are ready to run' }}</p>
-      </div>
-      <div class="stat">
-        <p class="stat__label">Completed runs</p>
-        <p class="stat__value numeric">{{ dashboard.completedRuns }}</p>
-        <p class="stat__sub">{{ dashboard.totalRuns }} total · {{ dashboard.runsNeedingIntervention }} need attention</p>
-      </div>
-      <div class="stat">
-        <p class="stat__label">Files organized</p>
-        <p class="stat__value numeric">{{ dashboard.filesOrganized }}</p>
-        <p class="stat__sub">{{ dashboard.filesScanned }} {{ plural(dashboard.filesScanned, 'file') }} reviewed in plans</p>
-      </div>
-      <div class="stat">
-        <p class="stat__label">Estimated time saved</p>
-        <p class="stat__value numeric">{{ minutes(dashboard.estimatedMinutesSaved) }}</p>
-        <p class="stat__sub">Assumption-based, never a verified study</p>
-      </div>
+    <section class="queue" aria-label="Start a shift">
+      <header class="queue__head">
+        <h2>Open a job</h2>
+        <span>Three ways into the desk</span>
+      </header>
+      <RouterLink v-for="action in actions" :key="action.to" :to="action.to" class="slip">
+        <span class="slip__icon"><Icon :name="action.icon" :size="17" /></span>
+        <span class="slip__copy">
+          <strong>{{ action.title }}</strong>
+          <span>{{ action.copy }}</span>
+        </span>
+        <Icon name="arrow" :size="15" class="slip__arrow" />
+      </RouterLink>
     </section>
 
     <div class="split-aside dashboard-main">
@@ -276,18 +279,6 @@ onMounted(() => {
       </aside>
     </div>
 
-    <section class="action-grid" aria-label="Start a shift">
-      <RouterLink v-for="(action, index) in actions" :key="action.to" :to="action.to" class="action-card">
-        <span class="action-card__no">{{ String(index + 1).padStart(2, '0') }}</span>
-        <span class="action-card__icon"><Icon :name="action.icon" :size="19" /></span>
-        <div>
-          <h2>{{ action.title }}</h2>
-          <p>{{ action.copy }}</p>
-        </div>
-        <Icon name="arrow" :size="16" class="action-card__arrow" />
-      </RouterLink>
-    </section>
-
     <div class="grid-2 dashboard-lower">
       <section class="panel">
         <header class="panel__head">
@@ -318,7 +309,7 @@ onMounted(() => {
           </span>
         </header>
         <div class="panel__body">
-          <p class="brain-panel__model mono">{{ dashboard.aiModel }}</p>
+          <p class="brain-panel__model">{{ dashboard.aiModel }}</p>
           <p class="brain-panel__copy">
             <template v-if="session.aiOnline">
               The local model is reachable. It may suggest classifications, draft workflows, and interpret log
@@ -343,7 +334,6 @@ onMounted(() => {
 
     <section v-if="dashboard.totalRuns === 0" class="first-run">
       <div class="first-run__copy">
-        <p class="eyebrow">A quiet first shift</p>
         <h2>Start with a real folder. Nothing else is assumed.</h2>
         <p>
           GhostShift only reads folders you register. You can create a synthetic demo folder with example files and
@@ -378,102 +368,191 @@ onMounted(() => {
   margin: 0 0 1.2rem;
   padding: 0.75rem 0.9rem;
   border: 1px solid color-mix(in srgb, var(--danger) 35%, var(--line));
-  border-left: 3px solid var(--danger);
+  border-left: 2px solid var(--danger);
   background: color-mix(in srgb, var(--danger) 7%, var(--surface));
   color: var(--danger);
-  font-size: 0.84rem;
+  font-size: 0.86rem;
 }
-.shift-stage {
+
+/* ---- the shift board ---- */
+
+.board {
   display: grid;
-  grid-template-columns: minmax(17rem, 0.72fr) minmax(0, 1.28fr);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.08fr);
   gap: 1.1rem;
-  margin-bottom: 1.35rem;
+  margin-bottom: 1.2rem;
+  align-items: stretch;
 }
-.shift-stage__copy {
+.tally {
+  position: relative;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  padding: 1.5rem 1.45rem;
-  border: 1px solid var(--line);
-  background: var(--surface);
-  box-shadow: 4px 4px 0 var(--shadow-color);
+  padding: clamp(1.15rem, 2vw, 1.6rem);
+  border-radius: 2px;
+  background:
+    linear-gradient(168deg, rgb(255 255 255 / 0.5), transparent 40%),
+    var(--paper);
+  color: var(--paper-ink);
+  box-shadow:
+    0 1px 0 rgb(255 255 255 / 0.5) inset,
+    0 30px 46px -34px rgb(0 0 0 / 0.9),
+    0 2px 6px rgb(0 0 0 / 0.35);
+  transform: rotate(-0.25deg);
 }
-.shift-stage__label {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.45rem;
+.tally__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-bottom: 0.85rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--paper-ink) 22%, transparent);
+}
+.tally__head h2 {
   margin: 0;
-  color: var(--text-muted);
-  font-size: 0.74rem;
-  font-weight: 650;
-}
-.shift-stage__label span {
-  width: 0.42rem;
-  height: 0.42rem;
-  background: var(--signal);
-}
-.shift-stage__copy h2 {
-  margin: 1rem 0 0;
-  color: var(--text);
+  color: var(--paper-ink);
   font-family: var(--font-display);
-  font-size: clamp(2.1rem, 3.3vw, 3.6rem);
-  font-weight: 600;
-  letter-spacing: -0.06em;
-  line-height: 0.9;
+  font-size: 1.5rem;
+  font-weight: 500;
+  letter-spacing: -0.015em;
 }
-.shift-stage__lede {
-  max-width: 34ch;
-  margin: 0.9rem 0 0;
-  color: var(--text-muted);
-  font-size: 0.84rem;
+.tally__head span {
+  color: color-mix(in srgb, var(--paper-ink) 58%, transparent);
+  font-size: 0.72rem;
+}
+.tally__figures {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  margin: 0;
+}
+.tally__figure {
+  padding: 0.95rem 0.9rem 0.85rem 0;
+}
+.tally__figure:nth-child(odd) {
+  border-right: 1px solid color-mix(in srgb, var(--paper-ink) 14%, transparent);
+  padding-right: 1rem;
+}
+.tally__figure:nth-child(even) {
+  padding-left: 1rem;
+}
+.tally__figure:nth-child(n + 3) {
+  border-top: 1px solid color-mix(in srgb, var(--paper-ink) 14%, transparent);
+}
+.tally__figure dt {
+  color: color-mix(in srgb, var(--paper-ink) 62%, transparent);
+  font-size: 0.74rem;
+}
+.tally__figure dd {
+  margin: 0.25rem 0 0;
+  color: var(--paper-ink);
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 3.1vw, 2.8rem);
+  font-weight: 500;
+  line-height: 0.92;
+  letter-spacing: -0.02em;
+}
+.tally__figure p {
+  margin: 0.4rem 0 0;
+  color: color-mix(in srgb, var(--paper-ink) 55%, transparent);
+  font-size: 0.7rem;
+  line-height: 1.4;
+}
+.tally__note {
+  margin: auto 0 0;
+  padding-top: 0.9rem;
+  border-top: 1px solid color-mix(in srgb, var(--paper-ink) 18%, transparent);
+  color: color-mix(in srgb, var(--paper-ink) 68%, transparent);
+  font-size: 0.78rem;
   line-height: 1.55;
 }
-.shift-stage__facts {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.6rem;
-  margin-top: 1.5rem;
-  padding-top: 0.85rem;
-  border-top: 1px solid var(--line);
+
+/* ---- the work queue ---- */
+
+.queue {
+  margin-bottom: 1.2rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow-plate);
+  overflow: hidden;
 }
-.shift-stage__facts span {
-  display: block;
-  color: var(--text);
+.queue__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.85rem 1.15rem;
+  border-bottom: 1px solid var(--line);
+}
+.queue__head h2 {
+  margin: 0;
   font-family: var(--font-display);
-  font-size: 1.35rem;
-  font-weight: 600;
-  letter-spacing: -0.04em;
-  line-height: 1;
+  font-size: 1.16rem;
+  font-weight: 500;
 }
-.shift-stage__facts p {
-  margin: 0.3rem 0 0;
+.queue__head span {
   color: var(--text-faint);
-  font-size: 0.68rem;
-  line-height: 1.3;
+  font-size: 0.74rem;
 }
-.dashboard-stats {
-  margin-bottom: 1.35rem;
-}
-.dashboard-main {
-  margin-bottom: 1.35rem;
-}
-.panel__link,
-.panel__hint {
-  display: inline-flex;
+.slip {
+  display: grid;
+  grid-template-columns: 2.1rem minmax(0, 1fr) auto;
   align-items: center;
-  gap: 0.3rem;
-  color: var(--text-faint);
-  font-family: var(--font-sans);
-  font-size: 0.72rem;
-  font-weight: 650;
+  gap: 0.85rem;
+  padding: 0.8rem 1.15rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--line) 70%, transparent);
+  color: var(--text);
+  transition:
+    background 150ms ease,
+    padding-left 180ms var(--ease);
 }
-.panel__link:hover {
-  color: var(--accent);
+.slip:last-child {
+  border-bottom: 0;
+}
+.slip:hover {
+  background: var(--surface-2);
+  color: var(--text);
+  padding-left: 1.45rem;
+}
+.slip__icon {
+  display: grid;
+  place-items: center;
+  width: 2.1rem;
+  height: 2.1rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 1px;
+  color: var(--signal-strong);
+}
+.slip__copy {
+  display: flex;
+  align-items: baseline;
+  gap: 0.7rem;
+  min-width: 0;
+}
+.slip__copy strong {
+  flex: none;
+  font-family: var(--font-display);
+  font-size: 1.04rem;
+  font-weight: 500;
+}
+.slip__copy span {
+  overflow: hidden;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.slip__arrow {
+  color: var(--text-faint);
+}
+
+.dashboard-main {
+  margin-bottom: 1.2rem;
 }
 .dashboard-main .cell-main {
   display: inline-block;
   color: var(--text);
-  font-weight: 650;
+  font-weight: 550;
 }
 .dashboard-main .cell-main:hover {
   color: var(--accent);
@@ -482,7 +561,7 @@ onMounted(() => {
 .approval-list {
   display: flex;
   flex-direction: column;
-  gap: 0.2rem;
+  gap: 0.15rem;
   padding: 0.55rem;
 }
 .approval-row {
@@ -490,6 +569,7 @@ onMounted(() => {
   align-items: center;
   gap: 0.7rem;
   padding: 0.6rem;
+  border-radius: 1px;
   color: var(--text-muted);
   transition:
     background 140ms ease,
@@ -507,20 +587,21 @@ onMounted(() => {
 }
 .approval-row strong {
   color: var(--text);
-  font-size: 0.82rem;
-  font-weight: 650;
+  font-size: 0.84rem;
+  font-weight: 550;
 }
 .approval-row span {
   margin-top: 0.12rem;
   color: var(--text-faint);
-  font-size: 0.7rem;
+  font-size: 0.72rem;
 }
 .approval-row .icon {
   color: var(--text-faint);
 }
 .approval-row__risk {
-  width: 4px;
+  width: 3px;
   height: 1.8rem;
+  border-radius: 1px;
   background: var(--text-faint);
   flex: none;
 }
@@ -545,7 +626,7 @@ onMounted(() => {
 }
 .approval-empty p {
   margin: 0;
-  font-size: 0.82rem;
+  font-size: 0.84rem;
   line-height: 1.5;
 }
 
@@ -557,7 +638,7 @@ onMounted(() => {
   display: flex;
   gap: 0.65rem;
   padding: 0.8rem 1rem;
-  border-bottom: 1px solid var(--line);
+  border-bottom: 1px solid color-mix(in srgb, var(--line) 70%, transparent);
 }
 .insight:last-child {
   border-bottom: 0;
@@ -581,76 +662,14 @@ onMounted(() => {
 }
 .insight strong {
   display: block;
-  font-size: 0.82rem;
-  font-weight: 650;
+  font-size: 0.84rem;
+  font-weight: 550;
 }
 .insight p {
   margin: 0.2rem 0 0;
   color: var(--text-muted);
-  font-size: 0.76rem;
-  line-height: 1.45;
-}
-
-.action-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.75rem;
-  margin-bottom: 1.35rem;
-}
-.action-card {
-  display: grid;
-  grid-template-columns: auto auto minmax(0, 1fr) auto;
-  align-items: start;
-  gap: 0.75rem;
-  padding: 1rem;
-  border: 1px solid var(--line);
-  background: var(--surface);
-  box-shadow: 4px 4px 0 var(--shadow-color);
-  color: var(--text);
-  transition:
-    border-color 150ms ease,
-    background 150ms ease,
-    transform 160ms var(--ease),
-    box-shadow 160ms var(--ease);
-}
-.action-card:hover {
-  border-color: var(--accent);
-  background: var(--surface-2);
-  color: var(--text);
-  transform: translate(-2px, -2px);
-  box-shadow: 6px 6px 0 color-mix(in srgb, var(--accent) 30%, transparent);
-}
-.action-card__no {
-  padding-top: 0.35rem;
-  color: var(--text-faint);
-  font-family: var(--font-mono);
-  font-size: 0.6rem;
-}
-.action-card__icon {
-  display: grid;
-  place-items: center;
-  width: 2.2rem;
-  height: 2.2rem;
-  border: 1px solid var(--line-strong);
-  color: var(--signal);
-  flex: none;
-}
-.action-card h2 {
-  margin: 0.1rem 0 0;
-  font-family: var(--font-display);
-  font-size: 1.06rem;
-  font-weight: 600;
-  letter-spacing: -0.025em;
-}
-.action-card p {
-  margin: 0.3rem 0 0;
-  color: var(--text-muted);
   font-size: 0.78rem;
   line-height: 1.45;
-}
-.action-card__arrow {
-  margin-top: 0.15rem;
-  color: var(--text-faint);
 }
 
 .dashboard-lower {
@@ -665,7 +684,7 @@ onMounted(() => {
   align-items: flex-start;
   gap: 0.65rem;
   padding: 0.75rem 1.05rem;
-  border-bottom: 1px solid var(--line);
+  border-bottom: 1px solid color-mix(in srgb, var(--line) 70%, transparent);
 }
 .activity-row:last-child {
   border-bottom: 0;
@@ -686,14 +705,14 @@ onMounted(() => {
 }
 .activity-row__copy strong {
   display: block;
-  font-size: 0.8rem;
-  font-weight: 650;
+  font-size: 0.82rem;
+  font-weight: 550;
 }
 .activity-row__copy p {
   margin: 0.15rem 0 0;
   overflow: hidden;
   color: var(--text-muted);
-  font-size: 0.74rem;
+  font-size: 0.76rem;
   line-height: 1.4;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -701,24 +720,24 @@ onMounted(() => {
 .activity-row__time {
   padding-top: 0.18rem;
   color: var(--text-faint);
-  font-size: 0.7rem;
+  font-size: 0.72rem;
   white-space: nowrap;
 }
 
 .brain-panel {
-  border-top: 3px solid var(--accent);
+  border-top: 2px solid var(--accent);
 }
 .brain-state {
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
   color: var(--text-faint);
-  font-size: 0.72rem;
-  font-weight: 600;
+  font-size: 0.74rem;
 }
 .brain-state__dot {
-  width: 0.4rem;
-  height: 0.4rem;
+  width: 5px;
+  height: 5px;
+  border-radius: 1px;
   background: var(--text-faint);
 }
 .brain-state--online {
@@ -728,15 +747,19 @@ onMounted(() => {
   background: var(--ok);
 }
 .brain-panel__model {
+  display: inline-block;
   margin: 0;
+  padding: 0.18rem 0.45rem;
+  border: 1px solid color-mix(in srgb, var(--accent) 40%, var(--line));
+  border-radius: 1px;
   color: var(--accent);
   font-size: 0.76rem;
 }
 .brain-panel__copy {
   max-width: 60ch;
-  margin: 0.55rem 0 0.9rem;
+  margin: 0.75rem 0 0.95rem;
   color: var(--text-muted);
-  font-size: 0.82rem;
+  font-size: 0.84rem;
   line-height: 1.6;
 }
 
@@ -745,27 +768,28 @@ onMounted(() => {
   align-items: center;
   justify-content: space-between;
   gap: 1.6rem;
-  margin-top: 1.35rem;
-  padding: 1.35rem 1.4rem;
+  margin-top: 1.2rem;
+  padding: 1.3rem 1.4rem;
   border: 1px solid var(--line-strong);
-  border-left: 4px solid var(--signal);
+  border-left: 3px solid var(--signal);
+  border-radius: var(--radius);
   background: var(--surface);
-  box-shadow: 4px 4px 0 var(--shadow-color);
+  box-shadow: var(--shadow-plate);
 }
 .first-run__copy h2 {
-  max-width: 24ch;
-  margin: 0.4rem 0 0;
+  max-width: 26ch;
+  margin: 0;
   font-family: var(--font-display);
   font-size: clamp(1.5rem, 2.4vw, 2.1rem);
-  font-weight: 600;
-  letter-spacing: -0.045em;
-  line-height: 1;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.02;
 }
 .first-run__copy p {
   max-width: 66ch;
   margin: 0.55rem 0 0;
   color: var(--text-muted);
-  font-size: 0.82rem;
+  font-size: 0.84rem;
   line-height: 1.55;
 }
 .first-run > .row {
@@ -777,7 +801,7 @@ onMounted(() => {
   padding-top: 1rem;
   border-top: 1px solid var(--line);
   color: var(--text-faint);
-  font-size: 0.74rem;
+  font-size: 0.76rem;
   line-height: 1.6;
 }
 .dashboard-loading {
@@ -786,20 +810,24 @@ onMounted(() => {
   gap: 1.1rem;
 }
 
-@media (max-width: 1180px) {
-  .shift-stage {
-    grid-template-columns: 1fr;
-  }
-  .shift-stage__copy {
-    padding: 1.3rem;
-  }
-  .action-grid {
+@media (max-width: 1120px) {
+  .board {
     grid-template-columns: 1fr;
   }
 }
 @media (max-width: 720px) {
-  .shift-stage__facts {
-    grid-template-columns: 1fr 1fr;
+  .slip {
+    grid-template-columns: 2.1rem minmax(0, 1fr) auto;
+  }
+  .slip__copy {
+    flex-direction: column;
+    gap: 0.15rem;
+  }
+  .slip__copy span {
+    white-space: normal;
+  }
+  .tally {
+    transform: none;
   }
   .first-run {
     flex-direction: column;

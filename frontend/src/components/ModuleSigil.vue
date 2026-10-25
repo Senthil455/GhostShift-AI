@@ -13,12 +13,12 @@ withDefaults(
 
 <template>
   <div class="sigil" :class="`sigil--${tone}`" aria-hidden="true">
-    <span class="sigil__plate sigil__plate--back" />
-    <span class="sigil__plate sigil__plate--mid" />
-    <span class="sigil__plate sigil__plate--front">
-      <span class="sigil__index">{{ order }}</span>
-      <Icon :name="icon" :size="30" :stroke-width="1.35" />
-      <span class="sigil__tick" />
+    <span class="sigil__sheet sigil__sheet--back" />
+    <span class="sigil__sheet sigil__sheet--mid" />
+    <span class="sigil__sheet sigil__sheet--front">
+      <span class="sigil__punch" />
+      <Icon :name="icon" :size="24" :stroke-width="1.4" />
+      <span class="sigil__slip" />
     </span>
   </div>
 </template>
@@ -27,93 +27,84 @@ withDefaults(
 .sigil {
   --sigil-accent: var(--accent);
   position: relative;
-  width: 9.2rem;
-  height: 9.2rem;
+  width: 4.6rem;
+  height: 5.2rem;
   flex: none;
-  perspective: 720px;
+  perspective: 520px;
   transform-style: preserve-3d;
 }
 .sigil--signal {
-  --sigil-accent: var(--signal);
+  --sigil-accent: var(--signal-strong);
 }
 .sigil--bone {
   --sigil-accent: var(--text);
 }
-.sigil__plate {
+.sigil__sheet {
   position: absolute;
-  inset: 12%;
+  inset: 4% 8% 8% 4%;
   display: block;
   border: 1px solid var(--line-strong);
+  border-radius: 1px;
   background: var(--surface-2);
-  clip-path: polygon(0 0, calc(100% - 18%) 0, 100% 18%, 100% 100%, 0 100%);
-  transform-style: preserve-3d;
+  clip-path: polygon(0 0, calc(100% - 22%) 0, 100% 22%, 100% 100%, 0 100%);
   transition: transform 420ms var(--ease);
 }
-.sigil__plate--back {
-  transform: translate3d(16%, -12%, -40px) rotateY(-18deg) rotateX(6deg);
-  opacity: 0.35;
+.sigil__sheet--back {
+  transform: translate3d(14%, 8%, -26px) rotate(-4deg);
+  opacity: 0.3;
 }
-.sigil__plate--mid {
-  transform: translate3d(8%, -6%, -20px) rotateY(-18deg) rotateX(6deg);
-  background: color-mix(in srgb, var(--sigil-accent) 16%, var(--surface-2));
-  opacity: 0.6;
+.sigil__sheet--mid {
+  transform: translate3d(7%, 4%, -12px) rotate(-2deg);
+  background: color-mix(in srgb, var(--sigil-accent) 18%, var(--surface-2));
+  opacity: 0.55;
 }
-.sigil__plate--front {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  inset: 4% 16% 16% 4%;
-  border-color: var(--sigil-accent);
-  background: var(--surface);
+.sigil__sheet--front {
+  display: grid;
+  place-items: center;
+  border-color: color-mix(in srgb, var(--sigil-accent) 55%, var(--line-strong));
+  background:
+    linear-gradient(165deg, rgb(255 255 255 / 0.06), transparent 45%),
+    var(--surface);
   color: var(--sigil-accent);
-  transform: rotateY(-18deg) rotateX(6deg);
-  box-shadow: 6px 6px 0 color-mix(in srgb, var(--sigil-accent) 18%, transparent);
+  transform: rotate(-2deg);
+  box-shadow: 0 10px 18px -16px rgb(0 0 0 / 0.9);
 }
-.sigil__index {
+.sigil__punch {
   position: absolute;
-  top: 0.7rem;
-  left: 0.75rem;
-  font-size: 0.68rem;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  color: var(--text-faint);
+  top: 0.5rem;
+  left: 0.5rem;
+  width: 0.28rem;
+  height: 0.28rem;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--ink) 80%, transparent);
+  box-shadow: inset 0 1px 1px rgb(0 0 0 / 0.5);
 }
-.sigil__tick {
+.sigil__slip {
   position: absolute;
-  right: 0.75rem;
-  bottom: 0.7rem;
-  width: 0.42rem;
-  height: 0.42rem;
+  right: 0.55rem;
+  bottom: 0.55rem;
+  width: 0.9rem;
+  height: 2px;
   background: var(--signal);
+  opacity: 0.85;
 }
-.page-head:hover .sigil__plate--back {
-  transform: translate3d(22%, -17%, -48px) rotateY(-22deg) rotateX(8deg);
+.page-head:hover .sigil__sheet--back {
+  transform: translate3d(18%, 11%, -30px) rotate(-7deg);
 }
-.page-head:hover .sigil__plate--mid {
-  transform: translate3d(12%, -9%, -24px) rotateY(-22deg) rotateX(8deg);
+.page-head:hover .sigil__sheet--mid {
+  transform: translate3d(9%, 5%, -14px) rotate(-4deg);
 }
-.page-head:hover .sigil__plate--front {
-  transform: translate3d(-2%, 2%, 8px) rotateY(-12deg) rotateX(4deg);
+.page-head:hover .sigil__sheet--front {
+  transform: translate3d(-3%, -3%, 8px) rotate(1deg);
 }
 @media (max-width: 760px) {
   .sigil {
-    width: 5.4rem;
-    height: 5.4rem;
-  }
-  .sigil__index {
-    top: 0.35rem;
-    left: 0.4rem;
-    font-size: 0.55rem;
-  }
-  .sigil__tick {
-    right: 0.4rem;
-    bottom: 0.35rem;
-    width: 0.28rem;
-    height: 0.28rem;
+    width: 3.3rem;
+    height: 3.8rem;
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .sigil__plate {
+  .sigil__sheet {
     transition: none;
   }
 }

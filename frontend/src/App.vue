@@ -33,8 +33,15 @@ onBeforeUnmount(() => {
 
 <template>
   <div v-if="!session.loaded" class="boot" role="status" aria-live="polite">
-    <div class="boot__mark" aria-hidden="true"><span /><span /><i /></div>
-    <p class="boot__name">GhostShift <em>AI</em></p>
+    <div class="boot__machine" aria-hidden="true">
+      <span class="boot__card boot__card--back" />
+      <span class="boot__card boot__card--front">
+        <i />
+        <b />
+      </span>
+      <span class="boot__slot" />
+    </div>
+    <p class="boot__name">GhostShift</p>
     <p class="boot__line"><span class="spinner" /> Opening your local workspace</p>
     <p class="boot__hint">Files, logs, and history stay on this machine.</p>
   </div>
@@ -59,84 +66,106 @@ onBeforeUnmount(() => {
   display: grid;
   place-content: center;
   justify-items: center;
-  gap: 0.55rem;
+  gap: 0.5rem;
   padding: 2rem;
   text-align: center;
 }
-.boot__mark {
+.boot__machine {
   position: relative;
-  width: 3.1rem;
-  height: 3.1rem;
-  margin-bottom: 0.7rem;
-  border: 1px solid var(--line-strong);
-  border-radius: 0;
-  background: var(--surface-2);
-  box-shadow: 4px 4px 0 var(--accent);
-  overflow: hidden;
-  animation: boot-mark 1.1s var(--ease) both;
+  width: 4.6rem;
+  height: 4.6rem;
+  margin-bottom: 1rem;
+  perspective: 400px;
 }
-.boot__mark span {
+.boot__card {
   position: absolute;
-  top: 0.35rem;
-  width: 1px;
-  height: 2.4rem;
-  background: var(--accent);
-  transform: rotate(20deg);
-  opacity: 0.75;
+  inset: 0.35rem 0.6rem auto 0.6rem;
+  height: 2.6rem;
+  border-radius: 1px;
+  background:
+    linear-gradient(160deg, rgb(255 255 255 / 0.5), transparent 45%),
+    var(--paper);
+  box-shadow: 0 6px 14px -8px rgb(0 0 0 / 0.8);
+  transform-origin: 50% 100%;
 }
-.boot__mark span:first-child {
-  left: 1.05rem;
+.boot__card--back {
+  transform: rotate(-7deg) translateY(-0.5rem);
+  opacity: 0.4;
+  animation: card-settle 1.6s var(--ease) infinite alternate;
 }
-.boot__mark span:nth-child(2) {
-  left: 1.62rem;
-  opacity: 0.35;
+.boot__card--front {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.5rem;
+  transform: rotate(2deg);
+  animation: card-feed 2.4s var(--ease) infinite;
 }
-.boot__mark i {
-  position: absolute;
-  right: 0.5rem;
-  bottom: 0.55rem;
-  width: 7px;
-  height: 7px;
-  border-radius: 0;
+.boot__card--front i {
+  width: 0.32rem;
+  height: 0.32rem;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--paper-ink) 70%, transparent);
+}
+.boot__card--front b {
+  width: 60%;
+  height: 3px;
+  margin-top: auto;
   background: var(--signal);
+}
+.boot__slot {
+  position: absolute;
+  left: 0.1rem;
+  right: 0.1rem;
+  bottom: 0.55rem;
+  height: 0.32rem;
+  border-radius: 1px;
+  background: var(--surface-3);
+  box-shadow:
+    inset 0 1px 3px rgb(0 0 0 / 0.8),
+    0 1px 0 rgb(255 255 255 / 0.06);
 }
 .boot__name {
   margin: 0;
   font-family: var(--font-display);
-  font-size: 2rem;
-  font-weight: 600;
-  letter-spacing: -0.04em;
-}
-.boot__name em {
-  font-style: normal;
-  color: var(--accent);
+  font-size: 2.1rem;
+  font-weight: 500;
+  letter-spacing: -0.02em;
 }
 .boot__line {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  margin: 0.4rem 0 0;
+  margin: 0.35rem 0 0;
   color: var(--text-muted);
-  font-size: 0.82rem;
+  font-size: 0.84rem;
 }
 .boot__line .spinner {
   width: 0.75rem;
   height: 0.75rem;
 }
 .boot__hint {
-  margin: 0.75rem 0 0;
-  font-family: var(--font-sans);
-  font-size: 0.72rem;
+  margin: 0.7rem 0 0;
+  font-size: 0.76rem;
   color: var(--text-faint);
 }
-@keyframes boot-mark {
+@keyframes card-feed {
+  0% {
+    transform: translateY(-0.35rem) rotate(2deg);
+  }
+  50% {
+    transform: translateY(0.16rem) rotate(1deg);
+  }
+  100% {
+    transform: translateY(-0.35rem) rotate(2deg);
+  }
+}
+@keyframes card-settle {
   from {
-    opacity: 0;
-    transform: translateY(6px) scale(0.96);
+    transform: rotate(-9deg) translateY(-0.55rem);
   }
   to {
-    opacity: 1;
-    transform: none;
+    transform: rotate(-5deg) translateY(-0.35rem);
   }
 }
 </style>

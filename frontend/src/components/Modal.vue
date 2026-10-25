@@ -68,16 +68,30 @@ onBeforeUnmount(() => {
   display: grid;
   place-items: center;
   padding: 1.2rem;
-  background: rgb(0 0 0 / 0.68);
+  background: rgb(0 0 0 / 0.72);
+  backdrop-filter: blur(1.5px);
 }
 .modal {
+  position: relative;
   width: min(560px, 100%);
   max-height: min(85vh, 920px);
   overflow: auto;
   background: var(--surface);
   border: 1px solid var(--line-strong);
-  border-radius: 0;
-  box-shadow: 8px 8px 0 var(--accent);
+  border-radius: var(--radius);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.06),
+    0 2px 6px rgb(0 0 0 / 0.5),
+    0 60px 80px -50px rgb(0 0 0 / 1);
+}
+.modal::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 1.5rem;
+  width: 3.2rem;
+  height: 2px;
+  background: var(--signal);
 }
 .modal--wide {
   width: min(900px, 100%);
@@ -93,9 +107,9 @@ onBeforeUnmount(() => {
 .modal__title {
   margin: 0;
   font-family: var(--font-display);
-  font-size: 1.7rem;
-  font-weight: 600;
-  letter-spacing: -0.035em;
+  font-size: 1.6rem;
+  font-weight: 500;
+  letter-spacing: -0.02em;
 }
 .modal__sub {
   margin: 0.4rem 0 0;
@@ -125,10 +139,10 @@ onBeforeUnmount(() => {
 }
 .modal-enter-active .modal,
 .modal-leave-active .modal {
-  transition: transform 180ms ease;
+  transition: transform 260ms var(--ease);
 }
 .modal-enter-from .modal,
 .modal-leave-to .modal {
-  transform: translateY(10px) scale(0.99);
+  transform: translate3d(0, 14px, -40px) rotateX(4deg);
 }
 </style>

@@ -21,12 +21,12 @@ const context = computed(() => props.eyebrow || module.value?.group || 'Workspac
 <template>
   <header class="page-head">
     <div class="page-head__plate">
-      <span class="page-head__tab" aria-hidden="true">{{ order }}</span>
+      <span class="page-head__spine" aria-hidden="true" />
       <div class="page-head__copy">
         <h1 class="page-head__title">{{ title }}</h1>
         <p v-if="description" class="page-head__lede">{{ description }}</p>
       </div>
-      <div class="page-head__object">
+      <div class="page-head__side">
         <ModuleSigil :icon="icon" :order="order" :tone="tone" />
         <span class="page-head__context">{{ context }}</span>
       </div>
@@ -40,137 +40,99 @@ const context = computed(() => props.eyebrow || module.value?.group || 'Workspac
 <style scoped>
 .page-head {
   position: relative;
-  margin-bottom: 2.2rem;
-}
-.page-head::before {
-  content: '';
-  position: absolute;
-  inset: 10px -10px -10px 10px;
-  background: var(--accent);
-  clip-path: polygon(0 0, calc(100% - 24px) 0, 100% 24px, 100% 100%, 0 100%);
-  opacity: 0.7;
+  margin-bottom: 1.9rem;
 }
 .page-head__plate {
   position: relative;
-  z-index: 1;
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 1.4rem;
-  padding: 1.55rem 1.6rem 1.45rem 2.25rem;
-  border: 1px solid var(--line-strong);
-  background: var(--surface);
-  clip-path: polygon(0 0, calc(100% - 24px) 0, 100% 24px, 100% 100%, 0 100%);
+  align-items: start;
+  gap: 1.2rem 2rem;
+  padding: 1.5rem 1.6rem 1.35rem 1.75rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 0.025), transparent 55%),
+    var(--surface);
+  box-shadow: var(--shadow-plate);
+  overflow: hidden;
 }
-.page-head__tab {
+/* the ticket stub: a perforated spine down the left edge */
+.page-head__spine {
   position: absolute;
-  top: 0;
-  left: 0;
-  display: grid;
-  place-items: center;
-  width: 1.55rem;
-  height: 1.55rem;
-  background: var(--text);
-  color: var(--ink);
-  font-family: var(--font-mono);
-  font-size: 0.6rem;
-  font-weight: 500;
+  inset: 0 auto 0 0;
+  width: 0.8rem;
+  border-right: 1px dashed color-mix(in srgb, var(--line-strong) 55%, transparent);
+  background-image: radial-gradient(
+    circle at 50% 50%,
+    color-mix(in srgb, var(--ink) 90%, transparent) 0 2.5px,
+    transparent 3px
+  );
+  background-size: 100% 16px;
+  background-position: 50% 4px;
+  opacity: 0.85;
 }
 .page-head__copy {
   min-width: 0;
-  max-width: 58rem;
+  padding-left: 0.55rem;
 }
 .page-head__title {
-  max-width: 20ch;
   margin: 0;
-  color: var(--text);
   font-family: var(--font-display);
-  font-size: clamp(2.55rem, 4.9vw, 5rem);
-  font-weight: 600;
-  letter-spacing: -0.06em;
-  line-height: 0.9;
+  font-size: clamp(1.9rem, 3.2vw, 2.9rem);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  text-wrap: balance;
 }
 .page-head__lede {
-  max-width: 65ch;
-  margin: 0.85rem 0 0;
+  max-width: 62ch;
+  margin: 0.7rem 0 0;
   color: var(--text-muted);
-  font-size: 0.94rem;
-  line-height: 1.55;
+  font-size: 0.95rem;
+  line-height: 1.58;
 }
-.page-head__object {
+.page-head__side {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 0.55rem;
+  gap: 0.5rem;
 }
 .page-head__context {
-  max-width: 12rem;
   color: var(--text-faint);
   font-size: 0.72rem;
-  font-weight: 600;
-  line-height: 1.3;
-  text-align: right;
 }
 .page-head__actions {
   grid-column: 1 / -1;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  justify-content: flex-end;
-  gap: 0.6rem;
-  margin-top: 0.15rem;
+  gap: 0.5rem;
+  padding-top: 0.95rem;
+  border-top: 1px solid color-mix(in srgb, var(--line) 75%, transparent);
 }
-@media (max-width: 900px) {
+
+@media (max-width: 760px) {
   .page-head__plate {
-    grid-template-columns: minmax(0, 1fr) auto;
-    padding-left: 1.9rem;
+    grid-template-columns: minmax(0, 1fr);
+    padding: 1.2rem 1.1rem 1.1rem 1.35rem;
+  }
+  .page-head__side {
+    flex-direction: row;
+    align-items: center;
+    gap: 0.75rem;
   }
   .page-head__title {
-    font-size: clamp(2.2rem, 6vw, 3.6rem);
-  }
-}
-@media (max-width: 700px) {
-  .page-head {
-    margin-bottom: 1.5rem;
-  }
-  .page-head::before {
-    inset: 7px -7px -7px 7px;
-  }
-  .page-head__plate {
-    display: block;
-    padding: 1.35rem 1.15rem 1.2rem 1.55rem;
-  }
-  .page-head__object {
-    position: absolute;
-    top: 0.9rem;
-    right: 0.9rem;
-  }
-  .page-head__object .sigil {
-    width: 4.4rem;
-    height: 4.4rem;
-  }
-  .page-head__context {
-    display: none;
-  }
-  .page-head__title {
-    max-width: none;
-    padding-right: 4.7rem;
-    font-size: clamp(2rem, 8vw, 3.1rem);
-  }
-  .page-head__lede {
-    margin-top: 0.7rem;
+    font-size: 1.85rem;
   }
   .page-head__actions {
-    justify-content: flex-start;
-    margin-top: 1rem;
+    padding-top: 0.8rem;
   }
 }
-@media (max-width: 460px) {
-  .page-head__object {
-    display: none;
-  }
-  .page-head__title {
-    padding-right: 0;
+
+@media (prefers-reduced-motion: reduce) {
+  .page-head__plate {
+    transition: none;
   }
 }
 </style>

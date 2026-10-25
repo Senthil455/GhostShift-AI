@@ -11,13 +11,14 @@ const session = useSessionStore()
 const sidebarOpen = ref(false)
 const menuButton = ref<HTMLButtonElement | null>(null)
 const closeButton = ref<HTMLButtonElement | null>(null)
+const clock = ref('')
 
 const sections = navSections
 const title = computed(() => (typeof route.meta.title === 'string' ? route.meta.title : 'GhostShift AI'))
 const group = computed(() => (typeof route.meta.group === 'string' ? route.meta.group : 'Local workspace'))
 const pending = computed(() => session.pendingApprovals.length)
 const aiLabel = computed(() => {
-  if (!session.ai) return 'AI status unknown'
+  if (!session.ai) return 'Status unknown'
   if (!session.ai.reachable) return 'Deterministic mode'
   if (!session.ai.modelAvailable) return 'Model not installed'
   return session.ai.model
@@ -45,6 +46,11 @@ function onKeydown(event: KeyboardEvent) {
   if (event.key === 'Escape' && sidebarOpen.value) closeNav()
 }
 
+let clockTimer: number | undefined
+function tick() {
+  clock.value = new Intl.DateTimeFormat(undefined, { hour: '2-digit', minute: '2-digit' }).format(new Date())
+}
+
 watch(
   () => route.fullPath,
   () => {
@@ -64,11 +70,14 @@ watch(sidebarOpen, async (open) => {
 
 onMounted(() => {
   document.addEventListener('keydown', onKeydown)
+  tick()
+  clockTimer = window.setInterval(tick, 30_000)
 })
 
 onBeforeUnmount(() => {
   document.removeEventListener('keydown', onKeydown)
   document.body.classList.remove('nav-open')
+  if (clockTimer) window.clearInterval(clockTimer)
 })
 </script>
 
@@ -98,14 +107,22 @@ onBeforeUnmount(() => {
       <RouterLink to="/overview" class="brand" aria-label="GhostShift AI overview">
         <ShiftMark />
         <span class="brand__copy">
-          <span class="brand__name">GhostShift<span>AI</span></span>
-          <span class="brand__sub">Local automation studio</span>
+          <span class="brand__name">GhostShift</span>
+          <span class="brand__sub">local automation</span>
         </span>
       </RouterLink>
 
+      <div class="rail__stamp">
+        <span class="rail__stamp-no">Shift desk</span>
+        <span class="rail__stamp-state"><i /> local</span>
+      </div>
+
       <nav class="nav" aria-label="Primary">
         <div v-for="section in sections" :key="section.label" class="nav__section">
-          <p class="nav__label">{{ section.label }}</p>
+          <p class="nav__label">
+            <span>{{ section.label }}</span>
+            <i aria-hidden="true" />
+          </p>
           <RouterLink
             v-for="item in section.items"
             :key="item.to"
@@ -114,7 +131,6 @@ onBeforeUnmount(() => {
             :class="{ 'nav__link--active': isActive(item.to) }"
             :aria-current="isActive(item.to) ? 'page' : undefined"
           >
-            <span class="nav__no" aria-hidden="true">{{ item.order }}</span>
             <span class="nav__icon"><Icon :name="item.icon" :size="16" /></span>
             <span class="nav__name">{{ item.label }}</span>
             <span
@@ -127,17 +143,17 @@ onBeforeUnmount(() => {
       </nav>
 
       <div class="sidebar__foot">
-        <RouterLink to="/brain" class="ai-card" :class="`ai-card--${aiTone}`">
-          <span class="ai-card__dot" />
-          <span class="ai-card__copy">
-            <span class="ai-card__label">GhostBrain</span>
-            <span class="ai-card__value">{{ aiLabel }}</span>
+        <RouterLink to="/brain" class="machine" :class="`machine--${aiTone}`">
+          <span class="machine__head">
+            <span class="machine__dot" />
+            <span class="machine__name">GhostBrain</span>
+            <Icon name="chevron" :size="13" />
           </span>
-          <Icon name="chevron" :size="14" />
+          <span class="machine__value">{{ aiLabel }}</span>
         </RouterLink>
         <div class="sidebar__meta">
           <span>v{{ session.system?.version ?? '1.0.0' }}</span>
-          <span aria-hidden="true">·</span>
+          <span class="sidebar__meta-rule" aria-hidden="true" />
           <span>{{ session.system?.bind ?? 'local only' }}</span>
         </div>
       </div>
@@ -163,6 +179,7 @@ onBeforeUnmount(() => {
         </div>
 
         <div class="topbar__actions">
+          <span class="topbar__clock" aria-hidden="true">{{ clock }}</span>
           <RouterLink to="/approvals" class="topbar__action topbar__approvals" aria-label="Open approvals">
             <Icon name="shield" :size="16" />
             <span>{{ pending }}</span>
@@ -208,17 +225,20 @@ onBeforeUnmount(() => {
   left: 0.7rem;
   z-index: 200;
   transform: translateY(-160%);
-  padding: 0.65rem 0.9rem;
+  padding: 0.6rem 0.9rem;
+  border-radius: var(--radius);
   background: var(--signal);
   color: var(--signal-ink);
-  font-size: 0.82rem;
-  font-weight: 700;
+  font-size: 0.84rem;
+  font-weight: 600;
   transition: transform 160ms var(--ease);
 }
 .skip-link:focus {
   transform: translateY(0);
   color: var(--signal-ink);
 }
+
+/* ---- the index rail ---- */
 
 .sidebar {
   position: sticky;
@@ -227,10 +247,15 @@ onBeforeUnmount(() => {
   height: 100vh;
   display: flex;
   flex-direction: column;
-  gap: 1.1rem;
-  padding: 1.15rem 0.8rem 1rem;
+  gap: 0.9rem;
+  padding: 1.05rem 0.85rem 0.9rem;
   border-right: 1px solid var(--line);
-  background: var(--surface);
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 0.022), transparent 32%),
+    var(--surface);
+  box-shadow:
+    inset -1px 0 0 rgb(255 255 255 / 0.025),
+    18px 0 40px -34px rgb(0 0 0 / 0.9);
 }
 
 .sidebar__close {
@@ -240,8 +265,8 @@ onBeforeUnmount(() => {
 .brand {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.35rem 0.45rem 1.2rem;
+  gap: 0.7rem;
+  padding: 0.2rem 0.35rem 0.35rem;
   color: var(--text);
 }
 .brand:hover {
@@ -254,89 +279,118 @@ onBeforeUnmount(() => {
 }
 .brand__name {
   font-family: var(--font-display);
-  font-size: 1.26rem;
-  font-weight: 600;
-  letter-spacing: -0.045em;
-  line-height: 1;
-}
-.brand__name span {
-  margin-left: 0.18rem;
-  color: var(--signal);
+  font-size: 1.42rem;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 0.95;
 }
 .brand__sub {
-  margin-top: 0.25rem;
+  margin-top: 0.28rem;
   color: var(--text-faint);
-  font-size: 0.68rem;
-  line-height: 1.2;
+  font-size: 0.7rem;
+  letter-spacing: 0.02em;
+}
+
+.rail__stamp {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.45rem 0.5rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--ink) 55%, transparent);
+  box-shadow: var(--shadow-inset);
+  color: var(--text-faint);
+  font-size: 0.7rem;
+}
+.rail__stamp-no {
+  color: var(--text-muted);
+  font-weight: 550;
+}
+.rail__stamp-state {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+.rail__stamp-state i {
+  width: 5px;
+  height: 5px;
+  border-radius: 1px;
+  background: var(--ok);
 }
 
 .nav {
   flex: 1;
   overflow-y: auto;
-  padding: 0 0.05rem;
+  padding: 0.15rem 0.05rem 0.4rem;
   scrollbar-width: thin;
   scrollbar-color: var(--line-strong) transparent;
 }
 .nav__section + .nav__section {
-  margin-top: 1.35rem;
+  margin-top: 1.3rem;
 }
 .nav__label {
-  margin: 0 0 0.35rem;
-  padding: 0 0.55rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 0 0.4rem;
+  padding: 0 0.5rem;
   color: var(--text-faint);
-  font-size: 0.7rem;
-  font-weight: 650;
-  letter-spacing: 0.01em;
+  font-size: 0.72rem;
+  font-weight: 500;
+}
+.nav__label i {
+  flex: 1;
+  height: 1px;
+  background: color-mix(in srgb, var(--line-strong) 60%, transparent);
 }
 .nav__link {
   position: relative;
   display: grid;
-  grid-template-columns: 1.35rem 1.15rem minmax(0, 1fr) auto;
+  grid-template-columns: 1.1rem minmax(0, 1fr) auto;
   align-items: center;
-  gap: 0.42rem;
-  min-height: 2.45rem;
-  padding: 0.38rem 0.55rem;
+  gap: 0.55rem;
+  min-height: 2.4rem;
+  margin-bottom: 0.12rem;
+  padding: 0.4rem 0.55rem 0.4rem 0.6rem;
   border: 1px solid transparent;
+  border-radius: var(--radius);
   color: var(--text-muted);
-  font-size: 0.88rem;
-  font-weight: 600;
+  font-size: 0.9rem;
+  font-weight: 500;
   line-height: 1.15;
   transition:
     background 150ms ease,
     color 150ms ease,
     border-color 150ms ease,
-    transform 150ms var(--ease),
-    box-shadow 150ms var(--ease);
+    transform 150ms var(--ease);
 }
 .nav__link:hover {
   border-color: var(--line);
   background: var(--surface-2);
   color: var(--text);
-  transform: translate(-1px, -1px);
+  transform: translateX(2px);
 }
 .nav__link--active,
 .nav__link--active:hover {
-  border-color: var(--text);
-  background: var(--text);
-  color: var(--ink);
-  transform: translate(-1px, -1px);
-  box-shadow: 4px 4px 0 var(--accent);
-}
-.nav__no {
-  color: var(--text-faint);
-  font-family: var(--font-mono);
-  font-size: 0.58rem;
-  font-weight: 400;
-  font-variant-numeric: tabular-nums;
-}
-.nav__link--active .nav__no {
-  color: color-mix(in srgb, var(--ink) 55%, transparent);
+  border-color: color-mix(in srgb, var(--paper) 20%, var(--line));
+  background: var(--paper);
+  color: var(--paper-ink);
+  transform: translateX(3px);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.6),
+    -3px 0 0 var(--signal),
+    0 10px 18px -14px rgb(0 0 0 / 0.9);
 }
 .nav__icon {
   display: grid;
   place-items: center;
   color: currentColor;
-  opacity: 0.8;
+  opacity: 0.72;
+}
+.nav__link--active .nav__icon {
+  opacity: 0.95;
 }
 .nav__name {
   overflow: hidden;
@@ -346,85 +400,90 @@ onBeforeUnmount(() => {
 .nav__badge {
   display: grid;
   place-items: center;
-  min-width: 1.3rem;
-  height: 1.3rem;
-  padding: 0 0.28rem;
+  min-width: 1.25rem;
+  height: 1.25rem;
+  padding: 0 0.3rem;
+  border-radius: 1px;
   background: var(--signal);
   color: var(--signal-ink);
-  font-family: var(--font-sans);
-  font-size: 0.66rem;
-  font-weight: 750;
+  font-size: 0.68rem;
+  font-weight: 650;
 }
 
 .sidebar__foot {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
-  padding-top: 0.9rem;
+  gap: 0.65rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--line);
 }
-.ai-card {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 0.6rem;
-  padding: 0.7rem 0.68rem;
+.machine {
+  display: block;
+  padding: 0.6rem 0.65rem;
   border: 1px solid var(--line);
-  background: var(--surface-2);
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--ink) 45%, transparent);
   color: var(--text-muted);
-  box-shadow: 3px 3px 0 var(--shadow-color);
+  box-shadow: var(--shadow-inset);
   transition:
-    transform 150ms var(--ease),
-    box-shadow 150ms var(--ease),
-    border-color 150ms ease;
+    border-color 150ms ease,
+    background 150ms ease,
+    color 150ms ease;
 }
-.ai-card:hover {
-  border-color: var(--accent);
+.machine:hover {
+  border-color: var(--line-strong);
+  background: var(--surface-2);
   color: var(--text);
-  transform: translate(-1px, -1px);
-  box-shadow: 4px 4px 0 color-mix(in srgb, var(--accent) 35%, transparent);
 }
-.ai-card__dot {
-  width: 0.42rem;
-  height: 0.42rem;
+.machine__head {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--text-faint);
+  font-size: 0.72rem;
+}
+.machine__head .icon {
+  margin-left: auto;
+}
+.machine__dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 1px;
   background: var(--text-faint);
 }
-.ai-card--ok .ai-card__dot {
+.machine--ok .machine__dot {
   background: var(--ok);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ok) 18%, transparent);
 }
-.ai-card--warn .ai-card__dot {
+.machine--warn .machine__dot {
   background: var(--warn);
 }
-.ai-card__copy {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-}
-.ai-card__label {
-  color: var(--text-faint);
-  font-size: 0.68rem;
-  font-weight: 650;
-}
-.ai-card__value {
+.machine__value {
+  display: block;
+  margin-top: 0.18rem;
   overflow: hidden;
   color: var(--text-muted);
-  font-family: var(--font-mono);
-  font-size: 0.68rem;
+  font-size: 0.8rem;
+  font-weight: 500;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-.ai-card .icon {
-  color: var(--text-faint);
 }
 .sidebar__meta {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.38rem;
+  gap: 0.45rem;
   color: var(--text-faint);
-  font-family: var(--font-mono);
-  font-size: 0.6rem;
+  font-size: 0.68rem;
   font-variant-numeric: tabular-nums;
 }
+.sidebar__meta-rule {
+  width: 1rem;
+  height: 1px;
+  background: var(--line-strong);
+}
+
+/* ---- the shift strip ---- */
 
 .shell__body {
   min-width: 0;
@@ -440,10 +499,28 @@ onBeforeUnmount(() => {
   display: flex;
   align-items: center;
   gap: 0.85rem;
-  height: 3.9rem;
-  padding: 0 clamp(1rem, 2.4vw, 2.1rem);
+  height: 3.7rem;
+  padding: 0 clamp(1rem, 2.4vw, 2.2rem);
   border-bottom: 1px solid var(--line);
-  background: var(--surface);
+  background: color-mix(in srgb, var(--desk) 92%, var(--surface));
+  box-shadow: 0 14px 24px -26px rgb(0 0 0 / 0.9);
+}
+/* a machined measure along the base of the strip, not a page grid */
+.topbar::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -3px;
+  height: 3px;
+  pointer-events: none;
+  opacity: 0.5;
+  background-image: repeating-linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--line-strong) 80%, transparent) 0 1px,
+    transparent 1px 9px
+  );
+  mask-image: linear-gradient(90deg, transparent, #000 15%, #000 70%, transparent);
 }
 .topbar__menu {
   display: none;
@@ -451,44 +528,50 @@ onBeforeUnmount(() => {
 .topbar__title {
   display: flex;
   align-items: baseline;
-  gap: 0.55rem;
+  gap: 0.6rem;
   min-width: 0;
 }
 .topbar__title span {
   color: var(--text-faint);
-  font-size: 0.72rem;
-  font-weight: 600;
+  font-size: 0.76rem;
 }
 .topbar__title strong {
   overflow: hidden;
   color: var(--text);
   font-family: var(--font-display);
-  font-size: 1.02rem;
-  font-weight: 600;
-  letter-spacing: -0.03em;
+  font-size: 1.16rem;
+  font-weight: 500;
+  letter-spacing: -0.015em;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 .topbar__actions {
   display: flex;
   align-items: center;
-  gap: 0.35rem;
+  gap: 0.3rem;
   margin-left: auto;
+}
+.topbar__clock {
+  margin-right: 0.5rem;
+  color: var(--text-faint);
+  font-size: 0.76rem;
+  font-variant-numeric: tabular-nums;
 }
 .topbar__action {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.35rem;
+  gap: 0.32rem;
   min-width: 2.2rem;
   height: 2.2rem;
   padding: 0 0.5rem;
   border: 1px solid transparent;
+  border-radius: var(--radius);
   background: transparent;
   color: var(--text-muted);
   font-family: var(--font-sans);
-  font-size: 0.76rem;
-  font-weight: 650;
+  font-size: 0.78rem;
+  font-weight: 550;
   transition:
     background 140ms ease,
     border-color 140ms ease,
@@ -500,22 +583,23 @@ onBeforeUnmount(() => {
   color: var(--text);
 }
 .topbar__approvals span {
-  color: var(--signal);
+  color: var(--signal-strong);
 }
 .topbar__local {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  margin-left: 0.35rem;
-  padding-left: 0.8rem;
+  margin-left: 0.4rem;
+  padding-left: 0.85rem;
   border-left: 1px solid var(--line);
   color: var(--text-faint);
-  font-size: 0.7rem;
+  font-size: 0.72rem;
   white-space: nowrap;
 }
 .topbar__local-dot {
-  width: 0.38rem;
-  height: 0.38rem;
+  width: 5px;
+  height: 5px;
+  border-radius: 1px;
   background: var(--ok);
 }
 
@@ -523,16 +607,16 @@ onBeforeUnmount(() => {
   display: flex;
   align-items: flex-start;
   gap: 0.55rem;
-  padding: 0.7rem clamp(1rem, 2.4vw, 2.1rem);
+  padding: 0.7rem clamp(1rem, 2.4vw, 2.2rem);
   border-bottom: 1px solid color-mix(in srgb, var(--danger) 35%, var(--line));
-  border-left: 3px solid var(--danger);
-  background: color-mix(in srgb, var(--danger) 7%, var(--surface));
+  border-left: 2px solid var(--danger);
+  background: color-mix(in srgb, var(--danger) 6%, var(--surface));
   color: var(--text-muted);
-  font-size: 0.82rem;
+  font-size: 0.84rem;
   line-height: 1.45;
 }
 .offline-banner .icon {
-  margin-top: 0.05rem;
+  margin-top: 0.1rem;
   color: var(--danger);
 }
 .offline-banner strong {
@@ -541,10 +625,11 @@ onBeforeUnmount(() => {
 
 .page {
   width: 100%;
-  max-width: 1560px;
+  max-width: 1520px;
   margin: 0 auto;
-  padding: 2.2rem clamp(1.2rem, 2.8vw, 3.2rem) 5rem;
+  padding: 2.1rem clamp(1.2rem, 2.8vw, 3rem) 5rem;
   flex: 1;
+  perspective: 1600px;
 }
 
 .scrim {
@@ -564,16 +649,16 @@ onBeforeUnmount(() => {
     inset: 0 auto 0 0;
     width: min(310px, 86vw);
     transform: translateX(-102%);
-    transition: transform 240ms var(--ease);
-    box-shadow: 18px 0 0 rgb(0 0 0 / 0.28);
+    transition: transform 260ms var(--ease);
+    box-shadow: 24px 0 50px -20px rgb(0 0 0 / 0.7);
   }
   .sidebar--open {
     transform: translateX(0);
   }
   .sidebar__close {
     position: absolute;
-    top: 0.85rem;
-    right: 0.85rem;
+    top: 0.8rem;
+    right: 0.8rem;
     z-index: 1;
     display: inline-grid;
   }
@@ -587,14 +672,15 @@ onBeforeUnmount(() => {
 
 @media (max-width: 560px) {
   .topbar__local,
+  .topbar__clock,
   .topbar__title span {
     display: none;
   }
   .topbar__title strong {
-    font-size: 0.94rem;
+    font-size: 1.02rem;
   }
   .page {
-    padding: 1.35rem 0.95rem 3.5rem;
+    padding: 1.4rem 0.95rem 3.5rem;
   }
 }
 </style>
