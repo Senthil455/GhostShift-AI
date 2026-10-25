@@ -98,7 +98,8 @@ public class RunExecutor {
     /** Runs (or resumes) one workflow until completion, cancellation, or an approval pause. */
     public void execute(String runId) {
         Object lock = locks.computeIfAbsent(runId, key -> new Object());
-        synchronized (lock) {
+        try {
+            synchronized (lock) {
             RunRepository.RunRow row = runs.getRow(runId);
             if (TERMINAL_RUNS.contains(row.status())) {
                 return;
@@ -236,6 +237,7 @@ public class RunExecutor {
                 }
             }
             finish(run, definition);
+            }
         } finally {
             locks.remove(runId);
         }

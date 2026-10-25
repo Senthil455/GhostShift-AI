@@ -14,6 +14,7 @@ import ai.ghostshift.domain.WorkflowValidation;
 import ai.ghostshift.service.RunService;
 import ai.ghostshift.service.WorkflowService;
 import ai.ghostshift.workflow.ActionRegistry;
+import io.micronaut.core.annotation.Nullable;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.annotation.Body;
 import io.micronaut.http.annotation.Controller;
@@ -107,7 +108,8 @@ public class WorkflowController {
     }
 
     @Post("/{id}/runs")
-    public HttpResponse<WorkflowRun> run(@PathVariable String id, @Body(required = false) WorkflowRunRequest request) {
+    public HttpResponse<WorkflowRun> run(@PathVariable String id,
+                                         @Nullable @Body WorkflowRunRequest request) {
         return HttpResponse.created(runs.start(id, request));
     }
 }
