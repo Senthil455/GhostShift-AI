@@ -145,15 +145,31 @@ body::before {
   z-index: 0;
   pointer-events: none;
   background-image:
-    radial-gradient(ellipse 90% 60% at 38% -12%, rgb(217 173 99 / calc(0.12 * var(--desk-glow))), transparent 70%),
-    radial-gradient(ellipse 70% 55% at 92% 108%, rgb(232 97 58 / calc(0.06 * var(--desk-glow))), transparent 72%),
+    radial-gradient(
+      ellipse 90% 60% at calc(38% + var(--lamp-x, 0px)) calc(-12% + var(--lamp-y, 0px)),
+      rgb(217 173 99 / calc(0.13 * var(--desk-glow))),
+      transparent 70%
+    ),
+    radial-gradient(
+      ellipse 70% 55% at calc(92% + var(--lamp-x, 0px) * 0.5) 108%,
+      rgb(232 97 58 / calc(0.06 * var(--desk-glow))),
+      transparent 72%
+    ),
     radial-gradient(ellipse 120% 100% at 50% 50%, transparent 45%, rgb(0 0 0 / 0.35) 100%);
 }
 
 [data-theme='light'] body::before {
   background-image:
-    radial-gradient(ellipse 90% 60% at 38% -12%, rgb(255 255 255 / 0.65), transparent 70%),
-    radial-gradient(ellipse 70% 55% at 92% 108%, rgb(178 58 24 / 0.06), transparent 72%),
+    radial-gradient(
+      ellipse 90% 60% at calc(38% + var(--lamp-x, 0px)) calc(-12% + var(--lamp-y, 0px)),
+      rgb(255 255 255 / 0.7),
+      transparent 70%
+    ),
+    radial-gradient(
+      ellipse 70% 55% at calc(92% + var(--lamp-x, 0px) * 0.5) 108%,
+      rgb(178 58 24 / 0.06),
+      transparent 72%
+    ),
     radial-gradient(ellipse 120% 100% at 50% 50%, transparent 45%, rgb(58 48 30 / 0.12) 100%);
 }
 
@@ -908,6 +924,16 @@ input[type='checkbox'] {
   background: var(--paper);
   color: var(--paper-ink);
   box-shadow: 0 1px 2px rgb(0 0 0 / 0.4);
+}
+
+[data-theme='light'] .tab--active {
+  background: var(--text);
+  color: var(--paper);
+}
+
+[data-theme='light'] .chip--accent,
+[data-theme='light'] .notice--accent {
+  background: color-mix(in srgb, var(--accent) 7%, var(--surface));
 }
 
 .code-block {

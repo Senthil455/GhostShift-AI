@@ -151,7 +151,7 @@ async function submit() {
   border-radius: 0;
   background: var(--surface);
   padding: 1.15rem 1.2rem;
-  box-shadow: 4px 4px 0 var(--shadow-color);
+  box-shadow: var(--shadow-plate);
 }
 .approval-card__head {
   display: flex;

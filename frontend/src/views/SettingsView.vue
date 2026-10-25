@@ -1251,8 +1251,8 @@ onMounted(load)
   background: color-mix(in srgb, var(--accent) 7%, transparent);
 }
 .theme-option > span:not(.theme-option__swatch) {
-  font-size: 0.76rem;
-  font-weight: 600;
+  font-size: 0.78rem;
+  font-weight: 550;
 }
 .theme-option small {
   color: var(--text-faint);
@@ -1262,10 +1262,10 @@ onMounted(load)
   position: relative;
   display: block;
   width: 100%;
-  height: 2.1rem;
-  margin-bottom: 0.3rem;
+  height: 2.2rem;
+  margin-bottom: 0.35rem;
   border: 1px solid var(--line);
-  border-radius: 4px;
+  border-radius: 2px;
   overflow: hidden;
 }
 .theme-option__swatch i {
@@ -1273,7 +1273,7 @@ onMounted(load)
   top: 0;
   bottom: 0;
   width: 38%;
-  background: #0c100d;
+  background: #151814;
 }
 .theme-option__swatch i:first-child {
   left: 0;
@@ -1281,7 +1281,7 @@ onMounted(load)
 .theme-option__swatch i:nth-child(2) {
   left: 38%;
   width: 1px;
-  background: #2b352c;
+  background: #464d41;
 }
 .theme-option__swatch b {
   position: absolute;
@@ -1289,17 +1289,17 @@ onMounted(load)
   bottom: 0.45rem;
   width: 7px;
   height: 7px;
-  border-radius: 0;
-  background: #c6e6a5;
+  border-radius: 1px;
+  background: #d9ad63;
 }
 .theme-option__swatch--light i:first-child {
-  background: #f2efe5;
+  background: #f4eee0;
 }
 .theme-option__swatch--light i:nth-child(2) {
-  background: #ddd7c8;
+  background: #cfc4ac;
 }
 .theme-option__swatch--light b {
-  background: #3f6834;
+  background: #8a5a12;
 }
 .token-row {
   display: flex;

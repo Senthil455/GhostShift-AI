@@ -46,7 +46,7 @@ const toast = useToastStore()
   border-left: 3px solid var(--text-muted);
   border-radius: 0;
   padding: 0.8rem 0.9rem;
-  box-shadow: 5px 5px 0 var(--shadow-color);
+  box-shadow: var(--shadow-lift);
 }
 .toast--success {
   border-left-color: var(--ok);

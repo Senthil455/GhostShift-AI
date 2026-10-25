@@ -28,10 +28,10 @@ withDefaults(defineProps<{ icon?: string; title: string; description?: string; c
   align-items: start;
   padding: 1.5rem 1.4rem;
   border: 1px solid var(--line);
-  border-left: 3px solid var(--line-strong);
-  border-radius: 0;
+  border-left: 2px solid var(--accent);
+  border-radius: var(--radius);
   background: var(--surface-2);
-  box-shadow: 4px 4px 0 var(--shadow-color);
+  box-shadow: var(--shadow-plate);
 }
 .empty--compact {
   padding: 1.1rem;
@@ -41,16 +41,16 @@ withDefaults(defineProps<{ icon?: string; title: string; description?: string; c
   place-items: center;
   width: 2.3rem;
   height: 2.3rem;
-  border-radius: 0;
+  border-radius: var(--radius-sm);
   border: 1px solid var(--line-strong);
-  color: var(--signal);
+  color: var(--signal-strong);
 }
 .empty h3 {
   margin: 0;
   font-family: var(--font-display);
-  font-size: 1.08rem;
-  font-weight: 600;
-  letter-spacing: -0.025em;
+  font-size: 1.14rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
 }
 .empty p {
   margin: 0.35rem 0 0;

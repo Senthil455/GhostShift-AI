@@ -266,7 +266,7 @@ onBeforeUnmount(() => {
   border-left: 3px solid var(--accent);
   border-radius: 0;
   background: var(--surface);
-  box-shadow: 4px 4px 0 var(--shadow-color);
+  box-shadow: var(--shadow-plate);
 }
 .approvals-summary__lead {
   display: flex;

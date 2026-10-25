@@ -202,7 +202,7 @@ function buildScene() {
     fallback.value = true
     return
   }
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.75))
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5))
   renderer.setClearColor(0x000000, 0)
   renderer.outputColorSpace = THREE.SRGBColorSpace
   renderer.toneMapping = THREE.ACESFilmicToneMapping
@@ -385,7 +385,15 @@ function buildScene() {
   }
   const shadowTexture = track(new THREE.CanvasTexture(shadowCanvas))
   const shadowGeometry = track(new THREE.PlaneGeometry(9.4, 9.4))
-  const shadowMaterial = track(new THREE.MeshBasicMaterial({ map: shadowTexture, transparent: true, depthWrite: false }))
+  const lightTheme = document.documentElement.dataset.theme === 'light'
+  const shadowMaterial = track(
+    new THREE.MeshBasicMaterial({
+      map: shadowTexture,
+      transparent: true,
+      depthWrite: false,
+      opacity: lightTheme ? 0.62 : 1,
+    }),
+  )
   const shadow = new THREE.Mesh(shadowGeometry, shadowMaterial)
   shadow.rotation.x = -Math.PI / 2
   shadow.position.y = -0.02
@@ -463,12 +471,25 @@ function animate(now: number) {
     angle += angularVelocity * delta
     angularVelocity *= 0.92
     if (Math.abs(angularVelocity) < 0.0015) {
+      angularVelocity = 0
       const snapped = Math.round(angle / STEP) * STEP
       angle += (snapped - angle) * Math.min(1, delta * 6.5)
       targetAngle = snapped
     }
   } else {
     angle += (targetAngle - angle) * Math.min(1, delta * 22)
+  }
+
+  const settled =
+    !draggingPointer &&
+    Math.abs(angularVelocity) < 0.0005 &&
+    Math.abs(targetAngle - angle) < 0.0008 &&
+    Math.abs(pointerNdcX * 0.09 - (wheel?.position.x ?? 0)) < 0.001 &&
+    Math.abs(pointerNdcY * 0.05 + 0.03 - (wheel?.position.y ?? 0)) < 0.001
+
+  if (settled) {
+    // A still desk costs nothing: stop redrawing until the pointer or the file moves.
+    return
   }
 
   if (wheel) {
@@ -500,7 +521,7 @@ function applyActive() {
   if (canvas.value) {
     canvas.value.style.cursor = draggingPointer ? 'grabbing' : hovered.value !== null ? 'pointer' : 'grab'
   }
-  if (reduced) renderOnce()
+  renderOnce()
 }
 
 function updatePointer(event: PointerEvent) {
@@ -887,7 +908,7 @@ onBeforeUnmount(() => {
   position: absolute;
   right: 1rem;
   bottom: 1.1rem;
-  color: color-mix(in srgb, var(--text-faint) 90%, transparent);
+  color: rgb(233 226 208 / 0.62);
   font-size: 0.72rem;
   pointer-events: none;
 }
@@ -924,6 +945,10 @@ onBeforeUnmount(() => {
 .cardfile__key.is-live {
   background: var(--paper);
   color: var(--paper-ink);
+}
+[data-theme='light'] .cardfile__key.is-live {
+  background: var(--text);
+  color: var(--paper);
 }
 .cardfile__paper {
   position: absolute;

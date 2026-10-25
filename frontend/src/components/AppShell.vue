@@ -47,6 +47,25 @@ function onKeydown(event: KeyboardEvent) {
 }
 
 let clockTimer: number | undefined
+let lampFrame = 0
+let lampX = 0
+let lampY = 0
+
+/* The desk lamp follows the pointer. A small, continuous parallax on the
+   ground layer only, so text never moves under the reader. */
+function applyLamp() {
+  lampFrame = 0
+  const root = document.documentElement
+  root.style.setProperty('--lamp-x', `${lampX.toFixed(1)}px`)
+  root.style.setProperty('--lamp-y', `${lampY.toFixed(1)}px`)
+}
+
+function onPointerLamp(event: PointerEvent) {
+  lampX = (event.clientX / window.innerWidth - 0.5) * 34
+  lampY = (event.clientY / window.innerHeight - 0.5) * 22
+  if (!lampFrame) lampFrame = requestAnimationFrame(applyLamp)
+}
+
 function tick() {
   clock.value = new Intl.DateTimeFormat(undefined, { hour: '2-digit', minute: '2-digit' }).format(new Date())
 }
@@ -68,14 +87,21 @@ watch(sidebarOpen, async (open) => {
   }
 })
 
+let lampEnabled = false
 onMounted(() => {
   document.addEventListener('keydown', onKeydown)
   tick()
   clockTimer = window.setInterval(tick, 30_000)
+  lampEnabled =
+    window.matchMedia('(pointer: fine)').matches &&
+    !window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  if (lampEnabled) window.addEventListener('pointermove', onPointerLamp, { passive: true })
 })
 
 onBeforeUnmount(() => {
   document.removeEventListener('keydown', onKeydown)
+  window.removeEventListener('pointermove', onPointerLamp)
+  if (lampFrame) cancelAnimationFrame(lampFrame)
   document.body.classList.remove('nav-open')
   if (clockTimer) window.clearInterval(clockTimer)
 })
@@ -111,11 +137,6 @@ onBeforeUnmount(() => {
           <span class="brand__sub">local automation</span>
         </span>
       </RouterLink>
-
-      <div class="rail__stamp">
-        <span class="rail__stamp-no">Shift desk</span>
-        <span class="rail__stamp-state"><i /> local</span>
-      </div>
 
       <nav class="nav" aria-label="Primary">
         <div v-for="section in sections" :key="section.label" class="nav__section">
@@ -291,35 +312,6 @@ onBeforeUnmount(() => {
   letter-spacing: 0.02em;
 }
 
-.rail__stamp {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
-  padding: 0.45rem 0.5rem;
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  background: color-mix(in srgb, var(--ink) 55%, transparent);
-  box-shadow: var(--shadow-inset);
-  color: var(--text-faint);
-  font-size: 0.7rem;
-}
-.rail__stamp-no {
-  color: var(--text-muted);
-  font-weight: 550;
-}
-.rail__stamp-state {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-}
-.rail__stamp-state i {
-  width: 5px;
-  height: 5px;
-  border-radius: 1px;
-  background: var(--ok);
-}
-
 .nav {
   flex: 1;
   overflow-y: auto;
@@ -382,6 +374,16 @@ onBeforeUnmount(() => {
     inset 0 1px 0 rgb(255 255 255 / 0.6),
     -3px 0 0 var(--signal),
     0 10px 18px -14px rgb(0 0 0 / 0.9);
+}
+[data-theme='light'] .nav__link--active,
+[data-theme='light'] .nav__link--active:hover {
+  border-color: var(--text);
+  background: var(--text);
+  color: var(--paper);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.12),
+    -3px 0 0 var(--signal),
+    0 10px 18px -14px rgb(0 0 0 / 0.55);
 }
 .nav__icon {
   display: grid;

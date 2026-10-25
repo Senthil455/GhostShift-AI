@@ -897,7 +897,7 @@ onMounted(async () => {
   border: 1px solid var(--line);
   border-radius: 0;
   background: var(--surface);
-  box-shadow: 4px 4px 0 var(--shadow-color);
+  box-shadow: var(--shadow-plate);
   color: var(--text);
   transition:
     border-color 150ms ease,
@@ -910,7 +910,7 @@ onMounted(async () => {
   background: var(--surface-2);
   color: var(--text);
   transform: translate(-2px, -2px);
-  box-shadow: 6px 6px 0 color-mix(in srgb, var(--accent) 30%, transparent);
+  box-shadow: var(--shadow-lift);
 }
 .prompt-card__icon {
   display: grid;
