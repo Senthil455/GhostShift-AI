@@ -212,6 +212,7 @@ public class OrganizationService {
         String rationale = request.category() == null ? action.rationale() : "Category changed by the user.";
         String source = request.category() == null ? action.classificationSource() : "USER";
         double confidence = request.category() == null ? action.confidence() : 1.0;
+        boolean categoryChanged = request.category() != null && request.category() != action.category();
         db.update("""
                         UPDATE organization_action
                         SET category = ?, destination_relative = ?, status = ?, conflict = ?,
@@ -219,11 +220,13 @@ public class OrganizationService {
                         WHERE plan_id = ? AND id = ?
                         """, category.name(), destination, status, conflict ? 1 : 0,
                 rationale, source, confidence, planId, actionId);
-        if (Boolean.TRUE.equals(request.remember()) && request.category() != null) {
+        if (Boolean.TRUE.equals(request.remember())) {
             memory.remember(action.fileName(), category);
         }
-        db.update("UPDATE organization_plan SET status = 'READY_FOR_REVIEW', updated_at = ? WHERE id = ?",
-                Text.now(), planId);
+        if (categoryChanged || request.status() != null) {
+            db.update("UPDATE organization_plan SET status = 'READY_FOR_REVIEW', updated_at = ? WHERE id = ?",
+                    Text.now(), planId);
+        }
         return getPlan(planId);
     }
 

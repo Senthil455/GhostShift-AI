@@ -173,7 +173,27 @@ public class RunExecutor {
                     return;
                 }
 
+                if (action.actionType().equals("ANALYZE_LOG") && !run.dryRun()
+                        && settings.approvals().logAnalysisRequiresApproval()) {
+                    Approval existing = runs.approvalForAction(runId, action.id());
+                    if (existing != null && existing.status().equals("PENDING")) {
+                        runs.markActionWaiting(action.id());
+                        runs.markWaiting(runId, action.stepIndex());
+                        return;
+                    }
+                    if (existing == null || !existing.status().equals("APPROVED")) {
+                        String explanation = "GhostShift will analyze " + logTarget(context)
+                                + " and save an incident report. Deterministic signatures are extracted first; "
+                                + "the configured local model may interpret the evidence if AI is enabled for this step. "
+                                + "No file is changed by this step.";
+                        pauseForApproval(run, action, context, "LOG_ANALYSIS",
+                                "Approve workflow log analysis", explanation, "LOW");
+                        return;
+                    }
+                }
+
                 if (action.actionType().equals("MOVE_FILE") && !run.dryRun()
+                        && settings.approvals().workflowMovesRequireApproval()
                         && !context.explicitApprovalGranted()) {
                     Approval existing = runs.approvalForAction(runId, action.id());
                     if (existing != null && existing.status().equals("PENDING")) {

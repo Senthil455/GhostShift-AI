@@ -90,6 +90,12 @@ export function categoryLabel(value?: string | null): string {
   return CATEGORIES.find((category) => category.value === value)?.label ?? titleCase(value ?? 'Other')
 }
 
+/** Mirrors the backend's default folder names for each category. */
+export function categoryDefaultFolder(value: string): string {
+  const label = CATEGORIES.find((category) => category.value === value)?.label ?? 'Other'
+  return label.toLowerCase().replace(/\s+/g, '-')
+}
+
 export function minutes(value: number): string {
   if (value < 1) return '<1 min'
   if (value < 60) return `${Math.round(value)} min`

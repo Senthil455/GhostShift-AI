@@ -16,6 +16,7 @@ const props = withDefaults(
     allowCreate?: boolean
     organizeDefault?: boolean
     disabled?: boolean
+    showSelect?: boolean
   }>(),
   {
     label: 'Folder',
@@ -23,6 +24,7 @@ const props = withDefaults(
     allowCreate: true,
     organizeDefault: false,
     disabled: false,
+    showSelect: true,
   },
 )
 
@@ -101,9 +103,10 @@ async function register() {
 
 <template>
   <div class="field directory">
-    <label :for="`directory-${label.replace(/\s+/g, '-').toLowerCase()}`">{{ label }}</label>
+    <label :for="showSelect ? `directory-${label.replace(/\s+/g, '-').toLowerCase()}` : undefined">{{ label }}</label>
     <div class="directory__row">
       <select
+        v-if="showSelect"
         :id="`directory-${label.replace(/\s+/g, '-').toLowerCase()}`"
         :value="modelValue ?? ''"
         :disabled="disabled"
@@ -114,7 +117,7 @@ async function register() {
           {{ directory.displayName }}{{ directory.allowOrganize ? '' : ' · read only' }}
         </option>
       </select>
-      <button class="icon-btn" type="button" aria-label="Refresh folders" :disabled="refreshing" @click="refresh">
+      <button v-if="showSelect" class="icon-btn" type="button" aria-label="Refresh folders" :disabled="refreshing" @click="refresh">
         <span v-if="refreshing" class="spinner" />
         <Icon v-else name="refresh" :size="16" />
       </button>
