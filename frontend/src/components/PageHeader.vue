@@ -27,11 +27,13 @@ const context = computed(() => props.eyebrow || module.value?.group || 'Workspac
         <p v-if="description" class="page-head__lede">{{ description }}</p>
       </div>
       <div class="page-head__side">
-        <ModuleSigil :icon="icon" :order="order" :tone="tone" />
-        <span class="page-head__context">{{ context }}</span>
-      </div>
-      <div v-if="$slots.actions" class="page-head__actions">
-        <slot name="actions" />
+        <div class="page-head__object">
+          <ModuleSigil :icon="icon" :order="order" :tone="tone" />
+          <span class="page-head__context">{{ context }}</span>
+        </div>
+        <div v-if="$slots.actions" class="page-head__actions">
+          <slot name="actions" />
+        </div>
       </div>
     </div>
   </header>
@@ -94,22 +96,26 @@ const context = computed(() => props.eyebrow || module.value?.group || 'Workspac
 }
 .page-head__side {
   display: flex;
+  align-items: flex-start;
+  gap: 1.1rem;
+}
+.page-head__object {
+  display: flex;
   flex-direction: column;
-  align-items: flex-end;
-  gap: 0.5rem;
+  align-items: center;
+  gap: 0.45rem;
 }
 .page-head__context {
   color: var(--text-faint);
   font-size: 0.72rem;
 }
 .page-head__actions {
-  grid-column: 1 / -1;
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.5rem;
-  padding-top: 0.95rem;
-  border-top: 1px solid color-mix(in srgb, var(--line) 75%, transparent);
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.45rem;
+  min-width: 9.5rem;
+  padding-top: 0.15rem;
 }
 
 @media (max-width: 760px) {
@@ -118,15 +124,22 @@ const context = computed(() => props.eyebrow || module.value?.group || 'Workspac
     padding: 1.2rem 1.1rem 1.1rem 1.35rem;
   }
   .page-head__side {
-    flex-direction: row;
+    flex-wrap: wrap;
     align-items: center;
+    justify-content: space-between;
     gap: 0.75rem;
+  }
+  .page-head__object {
+    flex-direction: row;
+    gap: 0.6rem;
   }
   .page-head__title {
     font-size: 1.85rem;
   }
   .page-head__actions {
-    padding-top: 0.8rem;
+    flex-direction: row;
+    flex-wrap: wrap;
+    padding-top: 0;
   }
 }
 

@@ -101,21 +101,24 @@ function cardTexture(index: number): THREE.CanvasTexture {
   ctx.fillStyle = wash
   ctx.fillRect(0, 0, 620, 840)
 
-  ctx.fillStyle = '#191811'
-  ctx.font = '500 19px "Instrument Sans Variable", system-ui, sans-serif'
-  ctx.fillText('GHOSTSHIFT', 56, 74)
-
-  ctx.fillStyle = '#b23a18'
-  ctx.fillRect(56, 94, 46, 3)
+  // printed header band, reversed out of the paper
+  ctx.fillStyle = '#1c1b14'
+  ctx.fillRect(0, 0, 620, 148)
+  ctx.fillStyle = '#e5dcc7'
+  ctx.font = '500 22px "Instrument Sans Variable", system-ui, sans-serif'
+  ctx.fillText('GHOSTSHIFT', 56, 88)
 
   ctx.textAlign = 'right'
-  ctx.fillStyle = '#6b6553'
-  ctx.font = '500 19px "Instrument Sans Variable", system-ui, sans-serif'
-  ctx.fillText(`Nº ${String(index + 1).padStart(2, '0')}`, 566, 74)
+  ctx.fillStyle = '#b8b09c'
+  ctx.font = '500 20px "Instrument Sans Variable", system-ui, sans-serif'
+  ctx.fillText(`Nº ${String(index + 1).padStart(2, '0')}`, 566, 88)
   ctx.textAlign = 'left'
 
+  ctx.fillStyle = '#e8613a'
+  ctx.fillRect(56, 108, 58, 5)
+
   ctx.fillStyle = '#191811'
-  ctx.font = '500 62px "Newsreader Variable", Georgia, serif'
+  ctx.font = '500 82px "Newsreader Variable", Georgia, serif'
   const words = item.label.split(/(?=[A-Z])/)
   const lines: string[] = []
   let current = ''
@@ -129,14 +132,14 @@ function cardTexture(index: number): THREE.CanvasTexture {
   }
   if (current) lines.push(current)
   lines.forEach((line, lineIndex) => {
-    ctx.fillText(line, 52, 196 + lineIndex * 66)
+    ctx.fillText(line, 52, 268 + lineIndex * 84)
   })
 
   ctx.fillStyle = '#4a4436'
-  ctx.font = '400 24px "Instrument Sans Variable", system-ui, sans-serif'
+  ctx.font = '400 25px "Instrument Sans Variable", system-ui, sans-serif'
   const bodyWords = (item.short ?? '').split(' ')
   let line = ''
-  let y = 300 + Math.max(0, lines.length - 1) * 66
+  let y = 350 + Math.max(0, lines.length - 1) * 84
   for (const word of bodyWords) {
     const next = line ? `${line} ${word}` : word
     if (ctx.measureText(next).width > 500) {
@@ -203,39 +206,42 @@ function buildScene() {
   renderer.setClearColor(0x000000, 0)
   renderer.outputColorSpace = THREE.SRGBColorSpace
   renderer.toneMapping = THREE.ACESFilmicToneMapping
-  renderer.toneMappingExposure = 0.92
+  renderer.toneMappingExposure = 1
 
   scene = new THREE.Scene()
   scene.fog = new THREE.FogExp2(0x0b0d0b, 0.045)
 
   camera = new THREE.PerspectiveCamera(30, 1, 0.1, 60)
-  camera.position.set(0, 2.35, props.mode === 'compact' ? 7.1 : 7.4)
-  camera.lookAt(0, 1.0, 0.1)
+  camera.position.set(2.35, 3.05, props.mode === 'compact' ? 6.9 : 7.2)
+  camera.lookAt(0, 0.98, 0.15)
 
   wheel = new THREE.Group()
   scene.add(wheel)
 
   const hemi = new THREE.HemisphereLight(0xfff2d8, 0x161811, 0.7)
   scene.add(hemi)
-  const key = new THREE.DirectionalLight(0xfff0d4, 1.5)
+  const key = new THREE.DirectionalLight(0xfff0d4, 1.9)
   key.position.set(-4.5, 7.5, 6)
   scene.add(key)
+  const frontFill = new THREE.DirectionalLight(0xfff2dc, 0.9)
+  frontFill.position.set(0.6, 2.6, 7.2)
+  scene.add(frontFill)
   const fill = new THREE.DirectionalLight(0x9fb3a6, 0.4)
   fill.position.set(5, 2.5, 3)
   scene.add(fill)
-  const lamp = new THREE.SpotLight(0xffeccc, 14, 16, 0.62, 0.55, 1.4)
+  const lamp = new THREE.SpotLight(0xffeccc, 18, 18, 0.72, 0.55, 1.3)
   lamp.position.set(-1.2, 6.4, 4.2)
   lamp.target.position.set(0, 1.0, 1.2)
   scene.add(lamp)
   scene.add(lamp.target)
-  const rim = new THREE.PointLight(0xe8613a, 4.5, 8, 2)
-  rim.position.set(2.4, 0.9, -2.4)
+  const rim = new THREE.PointLight(0xe8613a, 1.6, 7, 2)
+  rim.position.set(1.6, 0.4, -2.2)
   scene.add(rim)
 
   // the machined base
   const baseGeometry = track(new THREE.CylinderGeometry(2.68, 2.8, 0.16, 72))
   const baseMaterial = track(
-    new THREE.MeshStandardMaterial({ color: 0x1d211b, metalness: 0.62, roughness: 0.42 }),
+    new THREE.MeshStandardMaterial({ color: 0x3a352b, metalness: 0.72, roughness: 0.34 }),
   )
   const base = new THREE.Mesh(baseGeometry, baseMaterial)
   base.position.y = 0.08
@@ -743,7 +749,7 @@ onBeforeUnmount(() => {
       </div>
 
       <div class="cardfile__sticker">
-        <span class="cardfile__sticker-name">{{ readout.label }}</span>
+        <span class="cardfile__sticker-name">The card file</span>
         <p class="cardfile__sticker-copy">{{ readout.short }}</p>
       </div>
 
