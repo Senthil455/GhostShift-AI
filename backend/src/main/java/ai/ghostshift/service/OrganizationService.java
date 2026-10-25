@@ -83,7 +83,8 @@ public class OrganizationService {
         }
         RegisteredDirectory directory = directories.requireOrganize(request.directoryId());
         boolean useAi = request.useAi() == null || request.useAi();
-        FileScanner.Scan scan = scanner.scan(directory, Boolean.TRUE.equals(request.recursive()), 0);
+        int maxFiles = request.maxFiles() == null ? 0 : request.maxFiles();
+        FileScanner.Scan scan = scanner.scan(directory, Boolean.TRUE.equals(request.recursive()), maxFiles);
         if (scan.files().isEmpty()) {
             throw ApiException.unprocessable("No files were found in that folder. Add files or choose another folder.");
         }

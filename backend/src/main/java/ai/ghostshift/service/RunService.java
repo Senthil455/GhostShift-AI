@@ -12,14 +12,19 @@ import ai.ghostshift.domain.WorkflowStep;
 import ai.ghostshift.util.Json;
 import ai.ghostshift.util.Text;
 import ai.ghostshift.workflow.WorkflowContext;
+import io.micronaut.http.sse.Event;
 import jakarta.inject.Singleton;
+import reactor.core.publisher.Flux;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 
 /** Starts, observes, and cancels workflow runs. Execution itself lives in RunExecutor. */
 @Singleton
@@ -100,6 +105,34 @@ public class RunService {
     public List<RunEvent> events(String runId, long afterId) {
         runs.getRow(runId);
         return runs.events(runId, afterId);
+    }
+
+    /**
+     * Server-sent event stream over the same durable run events used by polling.
+     * Existing events are replayed from {@code afterId}, then the stream tails the
+     * run and closes once the run reaches a terminal status. The browser UI still
+     * polls so an optional API token can be held in memory instead of a URL.
+     */
+    public Flux<Event<RunEvent>> stream(String runId, long afterId) {
+        runs.getRow(runId);
+        long start = Math.max(0, afterId);
+        return Flux.defer(() -> {
+            AtomicLong cursor = new AtomicLong(start);
+            AtomicBoolean finished = new AtomicBoolean(false);
+            return Flux.interval(Duration.ZERO, Duration.ofMillis(500))
+                    .takeUntil(tick -> finished.get())
+                    .concatMapIterable(tick -> {
+                        List<RunEvent> batch = runs.events(runId, cursor.get());
+                        if (!batch.isEmpty()) {
+                            cursor.set(batch.getLast().id());
+                        }
+                        if (TERMINAL.contains(runs.getRow(runId).status())) {
+                            finished.set(true);
+                        }
+                        return batch;
+                    })
+                    .map(event -> Event.of(event).id(Long.toString(event.id())));
+        });
     }
 
     public WorkflowRun cancel(String runId) {

@@ -1,0 +1,30 @@
+services:
+  backend:
+    build:
+      context: ./backend
+    environment:
+      GHOSTSHIFT_HOST: 0.0.0.0
+      GHOSTSHIFT_PORT: 8080
+      GHOSTSHIFT_DATA_DIR: /data
+      GHOSTSHIFT_API_TOKEN: ${GHOSTSHIFT_API_TOKEN:-}
+      OLLAMA_ENDPOINT: ${OLLAMA_ENDPOINT:-http://host.docker.internal:11434}
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-gemma2:2b}
+    volumes:
+      - ghostshift-data:/data
+    ports:
+      - "127.0.0.1:${GHOSTSHIFT_API_PORT:-8080}:8080"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+    depends_on:
+      - backend
+    ports:
+      - "127.0.0.1:${GHOSTSHIFT_WEB_PORT:-3000}:80"
+    restart: unless-stopped
+
+volumes:
+  ghostshift-data:
