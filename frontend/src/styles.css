@@ -271,8 +271,18 @@ pre {
 }
 
 .btn:disabled {
-  opacity: 0.45;
+  border-color: var(--line);
+  background: var(--surface-2);
+  color: var(--text-faint);
+  opacity: 1;
+  box-shadow: none;
   cursor: not-allowed;
+}
+
+.btn--primary:disabled {
+  border-color: var(--line);
+  background: var(--surface-2);
+  color: var(--text-faint);
 }
 
 .btn--primary {

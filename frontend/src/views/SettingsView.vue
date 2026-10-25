@@ -967,17 +967,18 @@ onMounted(load)
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
-  font-family: var(--font-mono);
-  font-size: 0.6rem;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
   color: var(--text-faint);
+  font-family: var(--font-sans);
+  font-size: 0.7rem;
+  font-weight: 650;
+  letter-spacing: 0;
+  text-transform: none;
   white-space: nowrap;
 }
 .model-state__dot {
   width: 6px;
   height: 6px;
-  border-radius: 50%;
+  border-radius: 0;
   background: currentColor;
 }
 .model-state--ready {
@@ -1331,11 +1332,12 @@ onMounted(load)
   padding-bottom: 0;
 }
 .facts dt {
-  font-family: var(--font-mono);
-  font-size: 0.58rem;
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
   color: var(--text-faint);
+  font-family: var(--font-sans);
+  font-size: 0.68rem;
+  font-weight: 650;
+  letter-spacing: 0;
+  text-transform: none;
 }
 .facts dd {
   margin: 0;

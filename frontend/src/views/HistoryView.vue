@@ -566,11 +566,12 @@ onMounted(async () => {
   min-width: 1.25rem;
   height: 1.15rem;
   padding: 0 0.3rem;
-  border-radius: 999px;
+  border-radius: 0;
   background: var(--surface-3);
   color: var(--text-faint);
-  font-family: var(--font-mono);
-  font-size: 0.56rem;
+  font-family: var(--font-sans);
+  font-size: 0.6rem;
+  font-weight: 650;
 }
 .history-tab--active .history-tab__count {
   background: color-mix(in srgb, var(--accent) 16%, transparent);

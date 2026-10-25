@@ -461,16 +461,17 @@ onBeforeUnmount(stopPolling)
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
-  font-family: var(--font-mono);
-  font-size: 0.58rem;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
   color: var(--info);
+  font-family: var(--font-sans);
+  font-size: 0.7rem;
+  font-weight: 650;
+  letter-spacing: 0;
+  text-transform: none;
 }
 .run-live__dot {
   width: 5px;
   height: 5px;
-  border-radius: 50%;
+  border-radius: 0;
   background: var(--info);
   animation: run-pulse 1.6s ease-in-out infinite;
 }
@@ -493,17 +494,18 @@ onBeforeUnmount(stopPolling)
 }
 .run-meta__facts span {
   display: block;
-  font-family: var(--font-mono);
-  font-size: 0.54rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
   color: var(--text-faint);
+  font-family: var(--font-sans);
+  font-size: 0.68rem;
+  font-weight: 650;
+  letter-spacing: 0;
+  text-transform: none;
 }
 .run-meta__facts strong {
   display: block;
   margin-top: 0.22rem;
   font-size: 0.76rem;
-  font-weight: 550;
+  font-weight: 650;
   overflow-wrap: anywhere;
 }
 .run-meta__id {
@@ -750,12 +752,13 @@ onBeforeUnmount(stopPolling)
 }
 .resolved-approval__note span {
   display: block;
-  font-family: var(--font-mono);
-  font-size: 0.52rem;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--text-faint);
   margin-bottom: 0.15rem;
+  color: var(--text-faint);
+  font-family: var(--font-sans);
+  font-size: 0.68rem;
+  font-weight: 650;
+  letter-spacing: 0;
+  text-transform: none;
 }
 .resolved-approval footer {
   display: flex;

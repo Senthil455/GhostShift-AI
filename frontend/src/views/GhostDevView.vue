@@ -408,16 +408,15 @@ onMounted(async () => {
   gap: 1.8rem;
   padding: 1.4rem 1.5rem;
   margin-bottom: 1.4rem;
-  background:
-    linear-gradient(140deg, color-mix(in srgb, var(--info) 4%, transparent), transparent 45%),
-    var(--surface);
+  border-left: 3px solid var(--info);
+  background: var(--surface);
 }
 .dev-setup__intro h2 {
   margin: 0.45rem 0 0;
   font-family: var(--font-display);
   font-size: clamp(1.35rem, 2vw, 1.7rem);
-  font-weight: 470;
-  letter-spacing: -0.02em;
+  font-weight: 600;
+  letter-spacing: -0.04em;
 }
 .dev-setup__intro p {
   margin: 0.55rem 0 0;
@@ -476,11 +475,12 @@ onMounted(async () => {
 }
 .dev-picker label {
   grid-column: 1 / -1;
-  font-family: var(--font-mono);
-  font-size: 0.62rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
   color: var(--text-muted);
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  font-weight: 650;
+  letter-spacing: 0;
+  text-transform: none;
 }
 .dev-picker select {
   min-width: 0;
@@ -495,8 +495,8 @@ onMounted(async () => {
   margin: 0;
   font-family: var(--font-display);
   font-size: 1.55rem;
-  font-weight: 470;
-  letter-spacing: -0.02em;
+  font-weight: 600;
+  letter-spacing: -0.04em;
 }
 .dev-report__head p {
   margin: 0.4rem 0 0;
@@ -520,18 +520,20 @@ onMounted(async () => {
 }
 .dev-stats span {
   display: block;
-  font-family: var(--font-mono);
-  font-size: 0.56rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
   color: var(--text-faint);
+  font-family: var(--font-sans);
+  font-size: 0.68rem;
+  font-weight: 650;
+  letter-spacing: 0;
+  text-transform: none;
 }
 .dev-stats strong {
   display: block;
   margin-top: 0.25rem;
   font-family: var(--font-display);
   font-size: 1.25rem;
-  font-weight: 450;
+  font-weight: 600;
+  letter-spacing: -0.03em;
   line-height: 1;
 }
 .dev-stats__danger {
@@ -578,9 +580,10 @@ onMounted(async () => {
 }
 .dev-section h3 {
   margin: 0 0 0.5rem;
-  font-size: 0.78rem;
+  font-family: var(--font-display);
+  font-size: 1rem;
   font-weight: 600;
-  letter-spacing: -0.005em;
+  letter-spacing: -0.025em;
 }
 .dev-section h3 .faint {
   font-weight: 400;
@@ -604,8 +607,9 @@ onMounted(async () => {
 .signature {
   padding: 0.65rem 0.75rem;
   border: 1px solid var(--line);
-  border-radius: var(--radius-sm);
-  background: color-mix(in srgb, var(--surface-2) 50%, transparent);
+  border-left: 3px solid var(--line-strong);
+  border-radius: 0;
+  background: var(--surface-2);
 }
 .signature__head {
   display: flex;
@@ -645,11 +649,12 @@ onMounted(async () => {
 }
 .dev-markdown summary {
   cursor: pointer;
-  font-family: var(--font-mono);
-  font-size: 0.64rem;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
   color: var(--text-muted);
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  font-weight: 650;
+  letter-spacing: 0;
+  text-transform: none;
 }
 .dev-markdown summary:hover {
   color: var(--text);
@@ -699,7 +704,7 @@ onMounted(async () => {
   width: 1.5rem;
   height: 1.5rem;
   border: 1px solid var(--line);
-  border-radius: 50%;
+  border-radius: 0;
   color: var(--text-faint);
   flex: none;
   margin-top: 0.08rem;

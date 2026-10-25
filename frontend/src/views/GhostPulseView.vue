@@ -156,7 +156,7 @@ onMounted(async () => {
         plan or run records a duration.
       </p>
       <div class="savings-hero__method">
-        <span class="chip chip--accent">{{ savings.method.replaceAll('_', ' ') }}</span>
+        <span class="chip chip--accent">{{ savings.method.replaceAll('_', ' ').toLowerCase() }}</span>
         <span class="mono">manual {{ minutes(savings.manualMinutes) }} · measured {{ minutes(savings.actualMinutes) }}</span>
       </div>
     </div>
@@ -427,17 +427,16 @@ onMounted(async () => {
   gap: 1.5rem;
   padding: 1.5rem 1.6rem;
   margin-bottom: 1.3rem;
-  background:
-    linear-gradient(135deg, color-mix(in srgb, var(--accent) 7%, transparent), transparent 55%),
-    var(--surface);
+  border-left: 3px solid var(--accent);
+  background: var(--surface);
 }
 .savings-hero__value {
   margin: 0.55rem 0 0;
   font-family: var(--font-display);
   font-size: clamp(2.8rem, 6vw, 4.6rem);
-  font-weight: 400;
+  font-weight: 600;
   line-height: 0.95;
-  letter-spacing: -0.04em;
+  letter-spacing: -0.055em;
 }
 .savings-hero__copy {
   margin: 0.8rem 0 0;
@@ -463,8 +462,9 @@ onMounted(async () => {
   gap: 0.6rem;
   padding: 1rem;
   border: 1px solid var(--line);
-  border-radius: var(--radius-sm);
-  background: color-mix(in srgb, var(--surface-2) 55%, transparent);
+  border-left: 3px solid var(--line-strong);
+  border-radius: 0;
+  background: var(--surface-2);
 }
 .savings-figure {
   display: flex;
@@ -475,15 +475,16 @@ onMounted(async () => {
   border-bottom: 1px solid color-mix(in srgb, var(--line) 70%, transparent);
 }
 .savings-figure span {
-  font-family: var(--font-mono);
-  font-size: 0.6rem;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
   color: var(--text-faint);
+  font-family: var(--font-sans);
+  font-size: 0.68rem;
+  font-weight: 650;
+  letter-spacing: 0;
+  text-transform: none;
 }
 .savings-figure strong {
   font-size: 0.86rem;
-  font-weight: 550;
+  font-weight: 650;
 }
 .savings-hero__disclaimer {
   margin: 0.2rem 0 0;
@@ -505,14 +506,15 @@ onMounted(async () => {
   border: 0;
   background: none;
   padding: 0;
-  font-family: var(--font-mono);
-  font-size: 0.63rem;
+  font-family: var(--font-sans);
+  font-size: 0.74rem;
+  font-weight: 650;
   color: var(--accent);
   white-space: nowrap;
 }
 .panel__hint {
-  font-family: var(--font-mono);
-  font-size: 0.6rem;
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
   color: var(--text-faint);
 }
 .savings-lines {
@@ -530,7 +532,7 @@ onMounted(async () => {
 .savings-line__head strong {
   display: block;
   font-size: 0.8rem;
-  font-weight: 550;
+  font-weight: 650;
 }
 .savings-line__numbers {
   display: block;
@@ -551,20 +553,20 @@ onMounted(async () => {
   position: relative;
   height: 0.55rem;
   margin-top: 0.45rem;
-  border-radius: 999px;
+  border-radius: 0;
   background: var(--surface-3);
   overflow: hidden;
 }
 .savings-bar__manual {
   position: absolute;
   inset: 0 auto 0 0;
-  border-radius: 999px;
+  border-radius: 0;
   background: color-mix(in srgb, var(--info) 40%, var(--surface-3));
 }
 .savings-bar__measured {
   position: absolute;
   inset: 0 auto 0 0;
-  border-radius: 999px;
+  border-radius: 0;
   background: var(--accent);
   opacity: 0.85;
 }
@@ -593,7 +595,7 @@ onMounted(async () => {
   display: inline-block;
   width: 0.7rem;
   height: 0.4rem;
-  border-radius: 999px;
+  border-radius: 0;
 }
 .legend-manual {
   background: color-mix(in srgb, var(--info) 40%, var(--surface-3));
@@ -686,18 +688,20 @@ onMounted(async () => {
 }
 .duplicate-report__summary span {
   display: block;
-  font-family: var(--font-mono);
-  font-size: 0.56rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
   color: var(--text-faint);
+  font-family: var(--font-sans);
+  font-size: 0.68rem;
+  font-weight: 650;
+  letter-spacing: 0;
+  text-transform: none;
 }
 .duplicate-report__summary strong {
   display: block;
   margin-top: 0.25rem;
   font-family: var(--font-display);
   font-size: 1.15rem;
-  font-weight: 460;
+  font-weight: 600;
+  letter-spacing: -0.03em;
 }
 .duplicate-report__notice {
   margin: 0.9rem 0;
@@ -794,17 +798,18 @@ onMounted(async () => {
 }
 .system-fact > span {
   display: block;
-  font-family: var(--font-mono);
-  font-size: 0.57rem;
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
   color: var(--text-faint);
+  font-family: var(--font-sans);
+  font-size: 0.68rem;
+  font-weight: 650;
+  letter-spacing: 0;
+  text-transform: none;
 }
 .system-fact > strong {
   display: block;
   margin-top: 0.35rem;
   font-size: 0.84rem;
-  font-weight: 550;
+  font-weight: 650;
 }
 .system-fact p {
   margin: 0.25rem 0 0;
@@ -828,11 +833,12 @@ onMounted(async () => {
   font-size: 0.7rem;
 }
 .system-paths span {
-  font-family: var(--font-mono);
-  font-size: 0.58rem;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
   color: var(--text-faint);
+  font-family: var(--font-sans);
+  font-size: 0.68rem;
+  font-weight: 650;
+  letter-spacing: 0;
+  text-transform: none;
   white-space: nowrap;
 }
 .system-paths code {

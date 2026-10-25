@@ -1191,9 +1191,9 @@ onMounted(async () => {
   border-top: 1px solid var(--line);
 }
 .panel__hint {
-  font-family: var(--font-mono);
-  font-size: 0.6rem;
   color: var(--text-faint);
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
 }
 .step-params {
   display: block;
@@ -1209,11 +1209,12 @@ onMounted(async () => {
 }
 .version-block summary {
   cursor: pointer;
-  font-family: var(--font-mono);
-  font-size: 0.63rem;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
   color: var(--text-muted);
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  font-weight: 650;
+  letter-spacing: 0;
+  text-transform: none;
 }
 .version-block summary:hover {
   color: var(--text);
@@ -1298,8 +1299,9 @@ onMounted(async () => {
   border: 0;
   background: none;
   padding: 0;
-  font-family: var(--font-mono);
-  font-size: 0.63rem;
+  font-family: var(--font-sans);
+  font-size: 0.74rem;
+  font-weight: 650;
   color: var(--accent);
   cursor: pointer;
 }

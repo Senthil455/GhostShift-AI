@@ -659,16 +659,15 @@ onBeforeUnmount(stopPolling)
   gap: 1.8rem;
   padding: 1.4rem 1.5rem;
   margin-bottom: 1.5rem;
-  background:
-    linear-gradient(140deg, color-mix(in srgb, var(--accent) 5%, transparent), transparent 45%),
-    var(--surface);
+  border-left: 3px solid var(--accent);
+  background: var(--surface);
 }
 .sorter-create__intro h2 {
   margin: 0.45rem 0 0;
   font-family: var(--font-display);
   font-size: clamp(1.35rem, 2vw, 1.7rem);
-  font-weight: 470;
-  letter-spacing: -0.02em;
+  font-weight: 600;
+  letter-spacing: -0.04em;
 }
 .sorter-create__intro p {
   margin: 0.55rem 0 0;
@@ -941,10 +940,11 @@ onBeforeUnmount(stopPolling)
   align-items: center;
   gap: 0.3rem;
   color: var(--ok);
-  font-family: var(--font-mono);
-  font-size: 0.6rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  font-family: var(--font-sans);
+  font-size: 0.7rem;
+  font-weight: 650;
+  letter-spacing: 0;
+  text-transform: none;
 }
 
 @media (max-width: 1000px) {
