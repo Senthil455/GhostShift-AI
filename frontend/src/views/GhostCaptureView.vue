@@ -4,7 +4,7 @@ import { RouterLink } from 'vue-router'
 import { api } from '@/api/client'
 import type { RecordedStepView, RecordingView, WorkflowActionView } from '@/api/types'
 import { errorDetails, errorMessage } from '@/lib/errors'
-import { humanDate, relativeTime, titleCase } from '@/lib/format'
+import { humanDate, plural, relativeTime, titleCase } from '@/lib/format'
 import { useSessionStore } from '@/stores/session'
 import { useToastStore } from '@/stores/toast'
 import ConfirmDialog from '@/components/ConfirmDialog.vue'
@@ -324,7 +324,7 @@ onMounted(async () => {
         <StatusPill :status="recording.status" />
       </span>
       <span class="recording-tab__meta">
-        {{ recording.steps.length }} steps · {{ relativeTime(recording.createdAt) }}
+        {{ recording.steps.length }} {{ plural(recording.steps.length, 'step') }} · {{ relativeTime(recording.createdAt) }}
       </span>
     </button>
   </section>
@@ -337,7 +337,7 @@ onMounted(async () => {
             <div class="row">
               <StatusPill :status="selected.status" dot />
               <span class="chip">FILE actions</span>
-              <span v-if="selected.steps.length" class="chip">{{ selected.steps.length }} steps</span>
+              <span v-if="selected.steps.length" class="chip">{{ selected.steps.length }} {{ plural(selected.steps.length, 'step') }}</span>
             </div>
             <h2>{{ selected.name }}</h2>
             <p class="mono">

@@ -3,7 +3,7 @@ import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { api } from '@/api/client'
 import type { Category, OrganizationPlan, OrganizationPlanSummary, PlanAction } from '@/api/types'
 import { errorMessage } from '@/lib/errors'
-import { CATEGORIES, bytes, humanDate, relativeTime } from '@/lib/format'
+import { CATEGORIES, bytes, humanDate, plural, relativeTime } from '@/lib/format'
 import { useSessionStore } from '@/stores/session'
 import { useToastStore } from '@/stores/toast'
 import ConfirmDialog from '@/components/ConfirmDialog.vue'
@@ -82,7 +82,7 @@ const confirmTitle = computed(() => {
 })
 const confirmDescription = computed(() => {
   if (confirmAction.value === 'execute') {
-    return `${approved.value.length} approved file(s) will move into the GhostShift Organizer folder.`
+    return `${approved.value.length} approved ${plural(approved.value.length, 'file')} will move into the GhostShift Organizer folder.`
   }
   if (confirmAction.value === 'undo') {
     return 'GhostShift verifies each file before restoring it. Files changed since the move are left alone.'
@@ -169,7 +169,7 @@ async function createPlan() {
     selected.value = plan
     filter.value = 'ALL'
     await loadPlans()
-    toast.success('Plan ready for review', `${plan.fileCount} file(s) classified. Nothing moved yet.`)
+    toast.success('Plan ready for review', `${plan.fileCount} ${plural(plan.fileCount, 'file')} classified. Nothing moved yet.`)
   } catch (cause) {
     error.value = errorMessage(cause, 'The organization plan could not be created.')
   } finally {
@@ -215,7 +215,7 @@ async function approveRemaining() {
       ),
     )
     await loadPlans()
-    toast.success('Proposed files approved', `${proposed.value.length} file(s) are ready to execute.`)
+    toast.success('Proposed files approved', `${proposed.value.length} ${plural(proposed.value.length, 'file')} ready to execute.`)
   } catch (cause) {
     error.value = errorMessage(cause, 'The files could not be approved.')
   } finally {
@@ -384,7 +384,7 @@ onBeforeUnmount(stopPolling)
   <section v-if="plans.length" class="plan-history" aria-label="Recent organization plans">
     <div class="plan-history__head">
       <h2>Recent plans</h2>
-      <span class="mono">{{ plans.length }} record(s)</span>
+      <span class="mono">{{ plans.length }} {{ plural(plans.length, 'record') }}</span>
     </div>
     <div class="plan-history__strip">
       <button
@@ -501,7 +501,7 @@ onBeforeUnmount(stopPolling)
       </div>
       <div v-else-if="selected.status === 'COMPLETED'" class="plan__notice notice notice--accent">
         <Icon name="check" :size="15" class="notice__icon" />
-        <span><strong>Complete.</strong> {{ approved.length }} approved file(s) processed. Undo verifies every file before restoring it.</span>
+        <span><strong>Complete.</strong> {{ approved.length }} approved {{ plural(approved.length, 'file') }} processed. Undo verifies every file before restoring it.</span>
       </div>
 
       <div class="table-wrap">
@@ -630,7 +630,7 @@ onBeforeUnmount(stopPolling)
           renamed, never overwritten. Every move records recovery metadata.
         </span>
       </div>
-      <p class="muted small">{{ approved.length }} file(s) will move under <code>GhostShift Organizer</code>.</p>
+      <p class="muted small">{{ approved.length }} {{ plural(approved.length, 'file') }} will move under <code>GhostShift Organizer</code>.</p>
     </div>
     <div v-else-if="confirmAction === 'undo'" class="notice">
       <Icon name="undo" :size="15" class="notice__icon" />

@@ -9,6 +9,7 @@ import {
   isActiveRun,
   minutes,
   percent,
+  plural,
   relativeTime,
   riskTone,
   shortDate,
@@ -57,6 +58,15 @@ describe('format helpers', () => {
     expect(categoryDefaultFolder('DEVELOPMENT_LOGS')).toBe('development-logs')
     expect(categoryDefaultFolder('SOURCE_CODE')).toBe('source-code')
     expect(categoryDefaultFolder('UNKNOWN')).toBe('other')
+  })
+
+  it('pluralizes counts for interface copy', () => {
+    expect(plural(1, 'step')).toBe('step')
+    expect(plural(2, 'step')).toBe('steps')
+    expect(plural(1, 'permission')).toBe('permission')
+    expect(plural(0, 'file')).toBe('files')
+    expect(plural(1, 'directory', 'directories')).toBe('directory')
+    expect(plural(3, 'directory', 'directories')).toBe('directories')
   })
 
   it('formats minutes and clamped percentages', () => {

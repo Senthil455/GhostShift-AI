@@ -11,7 +11,7 @@ import type {
   WorkflowValidation,
 } from '@/api/types'
 import { errorDetails, errorMessage } from '@/lib/errors'
-import { humanDate, relativeTime, titleCase } from '@/lib/format'
+import { humanDate, plural, relativeTime, titleCase } from '@/lib/format'
 import { useSessionStore } from '@/stores/session'
 import { useToastStore } from '@/stores/toast'
 import ConfirmDialog from '@/components/ConfirmDialog.vue'
@@ -383,7 +383,8 @@ async function validateEditor() {
     if (editorValidation.value.valid) {
       toast.success('Definition is valid', 'Every step uses the fixed action registry and satisfies its parameter rules.')
     } else {
-      toast.warning('Validation found issues', `${editorValidation.value.errors?.length ?? 0} error(s) must be fixed before a run.`)
+      const count = editorValidation.value.errors?.length ?? 0
+      toast.warning('Validation found issues', `${count} ${plural(count, 'error')} must be fixed before a run.`)
     }
   } catch (cause) {
     const details = errorDetails(cause)
@@ -546,7 +547,8 @@ onMounted(async () => {
         <StatusPill :status="workflow.status" />
       </span>
       <span class="workflow-tab__meta">
-        v{{ workflow.currentVersion }} · {{ workflow.stepCount }} steps · {{ relativeTime(workflow.updatedAt) }}
+        v{{ workflow.currentVersion }} · {{ workflow.stepCount }} {{ plural(workflow.stepCount, 'step') }} ·
+        {{ relativeTime(workflow.updatedAt) }}
       </span>
     </button>
   </section>
@@ -564,7 +566,7 @@ onMounted(async () => {
             <div class="row">
               <StatusPill :status="selected.status" dot />
               <span class="chip">v{{ selected.currentVersion }}</span>
-              <span class="chip">{{ steps.length }} steps</span>
+              <span class="chip">{{ steps.length }} {{ plural(steps.length, 'step') }}</span>
               <span v-if="selected.archived" class="chip">Archived</span>
             </div>
             <h2>{{ selected.name }}</h2>
@@ -632,7 +634,7 @@ onMounted(async () => {
             <h3>Validation</h3>
             <StatusPill
               :tone="selected.validation.valid ? 'success' : 'danger'"
-              :label="selected.validation.valid ? 'Valid' : `${validationErrors.length} error(s)`"
+              :label="selected.validation.valid ? 'Valid' : `${validationErrors.length} ${plural(validationErrors.length, 'error')}`"
             />
           </div>
 
@@ -714,7 +716,8 @@ onMounted(async () => {
                 <strong>{{ humanDate(version.createdAt) }}</strong>
                 <span>
                   {{ version.validation.valid ? 'Validated' : 'Validation errors' }} ·
-                  {{ version.validation.requiredPermissions?.length ?? 0 }} permission(s)
+                  {{ version.validation.requiredPermissions?.length ?? 0 }}
+                  {{ plural(version.validation.requiredPermissions?.length ?? 0, 'permission') }}
                 </span>
               </div>
               <StatusPill :tone="version.validation.valid ? 'success' : 'danger'" :label="version.validation.valid ? 'valid' : 'invalid'" />
@@ -937,9 +940,12 @@ onMounted(async () => {
         <div class="row row--between">
           <StatusPill
             :tone="editorValidation.valid ? 'success' : 'danger'"
-            :label="editorValidation.valid ? 'Definition valid' : `${editorValidation.errors?.length ?? 0} validation error(s)`"
+            :label="editorValidation.valid ? 'Definition valid' : `${editorValidation.errors?.length ?? 0} validation ${plural(editorValidation.errors?.length ?? 0, 'error')}`"
           />
-          <span class="faint tiny">{{ editorValidation.requiredPermissions?.length ?? 0 }} permission(s)</span>
+          <span class="faint tiny">
+            {{ editorValidation.requiredPermissions?.length ?? 0 }}
+            {{ plural(editorValidation.requiredPermissions?.length ?? 0, 'permission') }}
+          </span>
         </div>
         <ul v-if="editorValidation.errors?.length" class="issue-list issue-list--danger">
           <li v-for="issue in editorValidation.errors" :key="issue">{{ issue }}</li>
