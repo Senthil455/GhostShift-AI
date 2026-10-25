@@ -8,6 +8,7 @@ import { duration, minutes, plural, relativeTime } from '@/lib/format'
 import { useSessionStore } from '@/stores/session'
 import { useToastStore } from '@/stores/toast'
 import EmptyState from '@/components/EmptyState.vue'
+import GhostLedger from '@/components/GhostLedger.vue'
 import Icon from '@/components/Icon.vue'
 import PageHeader from '@/components/PageHeader.vue'
 import StatusPill from '@/components/StatusPill.vue'
@@ -136,6 +137,32 @@ onMounted(() => {
   <p v-if="error" class="dashboard-error" role="alert">{{ error }}</p>
 
   <template v-if="dashboard">
+    <section class="shift-stage" aria-label="Live workspace archive">
+      <div class="shift-stage__copy">
+        <p class="shift-stage__label"><span /> Live archive</p>
+        <h2>Six modules.<br />One shift.</h2>
+        <p class="shift-stage__lede">
+          The workspace is a stack of records, not a feed. Move through it by module, then inspect the exact plan,
+          approval, or receipt.
+        </p>
+        <div class="shift-stage__facts">
+          <div>
+            <span class="numeric">{{ dashboard.totalWorkflows }}</span>
+            <p>reviewable workflows</p>
+          </div>
+          <div>
+            <span class="numeric">{{ dashboard.pendingApprovals }}</span>
+            <p>waiting for you</p>
+          </div>
+          <div>
+            <span>{{ session.aiOnline ? 'Ready' : 'Local rules' }}</span>
+            <p>GhostBrain state</p>
+          </div>
+        </div>
+      </div>
+      <GhostLedger mode="compact" interactive />
+    </section>
+
     <section class="stat-grid dashboard-stats" aria-label="Workspace summary">
       <div class="stat">
         <p class="stat__label">Workflows</p>
@@ -250,8 +277,9 @@ onMounted(() => {
     </div>
 
     <section class="action-grid" aria-label="Start a shift">
-      <RouterLink v-for="action in actions" :key="action.to" :to="action.to" class="action-card">
-        <span class="action-card__icon"><Icon :name="action.icon" :size="20" /></span>
+      <RouterLink v-for="(action, index) in actions" :key="action.to" :to="action.to" class="action-card">
+        <span class="action-card__no">{{ String(index + 1).padStart(2, '0') }}</span>
+        <span class="action-card__icon"><Icon :name="action.icon" :size="19" /></span>
         <div>
           <h2>{{ action.title }}</h2>
           <p>{{ action.copy }}</p>
@@ -340,7 +368,7 @@ onMounted(() => {
 
   <div v-else class="dashboard-loading">
     <div class="skeleton" style="width: 40%; height: 1.4rem" />
-    <div class="skeleton" style="width: 100%; height: 8rem" />
+    <div class="skeleton" style="width: 100%; height: 18rem" />
     <div class="skeleton" style="width: 100%; height: 12rem" />
   </div>
 </template>
@@ -348,28 +376,96 @@ onMounted(() => {
 <style scoped>
 .dashboard-error {
   margin: 0 0 1.2rem;
-  padding: 0.7rem 0.9rem;
-  border: 1px solid color-mix(in srgb, var(--danger) 30%, var(--line));
-  border-left: 2px solid var(--danger);
-  border-radius: var(--radius-sm);
+  padding: 0.75rem 0.9rem;
+  border: 1px solid color-mix(in srgb, var(--danger) 35%, var(--line));
+  border-left: 3px solid var(--danger);
+  background: color-mix(in srgb, var(--danger) 7%, var(--surface));
   color: var(--danger);
-  font-size: 0.8rem;
+  font-size: 0.84rem;
+}
+.shift-stage {
+  display: grid;
+  grid-template-columns: minmax(17rem, 0.72fr) minmax(0, 1.28fr);
+  gap: 1.1rem;
+  margin-bottom: 1.35rem;
+}
+.shift-stage__copy {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 1.5rem 1.45rem;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  box-shadow: 4px 4px 0 var(--shadow-color);
+}
+.shift-stage__label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.74rem;
+  font-weight: 650;
+}
+.shift-stage__label span {
+  width: 0.42rem;
+  height: 0.42rem;
+  background: var(--signal);
+}
+.shift-stage__copy h2 {
+  margin: 1rem 0 0;
+  color: var(--text);
+  font-family: var(--font-display);
+  font-size: clamp(2.1rem, 3.3vw, 3.6rem);
+  font-weight: 600;
+  letter-spacing: -0.06em;
+  line-height: 0.9;
+}
+.shift-stage__lede {
+  max-width: 34ch;
+  margin: 0.9rem 0 0;
+  color: var(--text-muted);
+  font-size: 0.84rem;
+  line-height: 1.55;
+}
+.shift-stage__facts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.6rem;
+  margin-top: 1.5rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid var(--line);
+}
+.shift-stage__facts span {
+  display: block;
+  color: var(--text);
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 600;
+  letter-spacing: -0.04em;
+  line-height: 1;
+}
+.shift-stage__facts p {
+  margin: 0.3rem 0 0;
+  color: var(--text-faint);
+  font-size: 0.68rem;
+  line-height: 1.3;
 }
 .dashboard-stats {
-  margin-bottom: 1.4rem;
+  margin-bottom: 1.35rem;
 }
 .dashboard-main {
-  margin-bottom: 1.4rem;
+  margin-bottom: 1.35rem;
 }
 .panel__link,
 .panel__hint {
   display: inline-flex;
   align-items: center;
   gap: 0.3rem;
-  font-family: var(--font-mono);
-  font-size: 0.63rem;
-  letter-spacing: 0.04em;
   color: var(--text-faint);
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  font-weight: 650;
 }
 .panel__link:hover {
   color: var(--accent);
@@ -377,7 +473,7 @@ onMounted(() => {
 .dashboard-main .cell-main {
   display: inline-block;
   color: var(--text);
-  font-weight: 550;
+  font-weight: 650;
 }
 .dashboard-main .cell-main:hover {
   color: var(--accent);
@@ -393,9 +489,11 @@ onMounted(() => {
   display: flex;
   align-items: center;
   gap: 0.7rem;
-  padding: 0.55rem 0.6rem;
-  border-radius: var(--radius-sm);
+  padding: 0.6rem;
   color: var(--text-muted);
+  transition:
+    background 140ms ease,
+    color 140ms ease;
 }
 .approval-row:hover {
   background: var(--surface-2);
@@ -408,23 +506,21 @@ onMounted(() => {
   flex: 1;
 }
 .approval-row strong {
-  font-size: 0.8rem;
-  font-weight: 550;
   color: var(--text);
+  font-size: 0.82rem;
+  font-weight: 650;
 }
 .approval-row span {
-  font-family: var(--font-mono);
-  font-size: 0.62rem;
+  margin-top: 0.12rem;
   color: var(--text-faint);
-  margin-top: 0.1rem;
+  font-size: 0.7rem;
 }
 .approval-row .icon {
   color: var(--text-faint);
 }
 .approval-row__risk {
   width: 4px;
-  height: 1.7rem;
-  border-radius: 2px;
+  height: 1.8rem;
   background: var(--text-faint);
   flex: none;
 }
@@ -444,12 +540,12 @@ onMounted(() => {
   color: var(--text-muted);
 }
 .approval-empty .icon {
-  color: var(--ok);
   margin-top: 0.1rem;
+  color: var(--ok);
 }
 .approval-empty p {
   margin: 0;
-  font-size: 0.8rem;
+  font-size: 0.82rem;
   line-height: 1.5;
 }
 
@@ -469,84 +565,92 @@ onMounted(() => {
 .insight__icon {
   display: grid;
   place-items: center;
-  width: 1.8rem;
-  height: 1.8rem;
-  border-radius: 50%;
+  width: 1.9rem;
+  height: 1.9rem;
   border: 1px solid var(--line);
   color: var(--text-muted);
   flex: none;
 }
 .insight__icon--danger {
+  border-color: color-mix(in srgb, var(--danger) 40%, var(--line));
   color: var(--danger);
-  border-color: color-mix(in srgb, var(--danger) 30%, var(--line));
 }
 .insight__icon--warning {
+  border-color: color-mix(in srgb, var(--warn) 40%, var(--line));
   color: var(--warn);
-  border-color: color-mix(in srgb, var(--warn) 30%, var(--line));
 }
 .insight strong {
   display: block;
-  font-size: 0.79rem;
-  font-weight: 560;
+  font-size: 0.82rem;
+  font-weight: 650;
 }
 .insight p {
   margin: 0.2rem 0 0;
-  font-size: 0.74rem;
-  line-height: 1.45;
   color: var(--text-muted);
+  font-size: 0.76rem;
+  line-height: 1.45;
 }
 
 .action-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 0.75rem;
-  margin-bottom: 1.4rem;
+  margin-bottom: 1.35rem;
 }
 .action-card {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.8rem;
+  display: grid;
+  grid-template-columns: auto auto minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 0.75rem;
   padding: 1rem;
   border: 1px solid var(--line);
-  border-radius: var(--radius);
-  background: color-mix(in srgb, var(--surface) 80%, transparent);
+  background: var(--surface);
+  box-shadow: 4px 4px 0 var(--shadow-color);
   color: var(--text);
   transition:
     border-color 150ms ease,
     background 150ms ease,
-    transform 150ms var(--ease);
+    transform 160ms var(--ease),
+    box-shadow 160ms var(--ease);
 }
 .action-card:hover {
-  border-color: var(--line-strong);
+  border-color: var(--accent);
   background: var(--surface-2);
   color: var(--text);
-  transform: translateY(-1px);
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 color-mix(in srgb, var(--accent) 30%, transparent);
+}
+.action-card__no {
+  padding-top: 0.35rem;
+  color: var(--text-faint);
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
 }
 .action-card__icon {
   display: grid;
   place-items: center;
   width: 2.2rem;
   height: 2.2rem;
-  border: 1px solid var(--line);
-  border-radius: 50%;
-  color: var(--accent);
+  border: 1px solid var(--line-strong);
+  color: var(--signal);
   flex: none;
 }
 .action-card h2 {
   margin: 0.1rem 0 0;
-  font-size: 0.85rem;
+  font-family: var(--font-display);
+  font-size: 1.06rem;
   font-weight: 600;
+  letter-spacing: -0.025em;
 }
 .action-card p {
   margin: 0.3rem 0 0;
-  font-size: 0.76rem;
-  line-height: 1.5;
   color: var(--text-muted);
+  font-size: 0.78rem;
+  line-height: 1.45;
 }
 .action-card__arrow {
-  margin-left: auto;
-  color: var(--text-faint);
   margin-top: 0.15rem;
+  color: var(--text-faint);
 }
 
 .dashboard-lower {
@@ -560,8 +664,8 @@ onMounted(() => {
   display: flex;
   align-items: flex-start;
   gap: 0.65rem;
-  padding: 0.7rem 1.05rem;
-  border-bottom: 1px solid color-mix(in srgb, var(--line) 70%, transparent);
+  padding: 0.75rem 1.05rem;
+  border-bottom: 1px solid var(--line);
 }
 .activity-row:last-child {
   border-bottom: 0;
@@ -569,9 +673,8 @@ onMounted(() => {
 .activity-row__mark {
   display: grid;
   place-items: center;
-  width: 1.55rem;
-  height: 1.55rem;
-  border-radius: 50%;
+  width: 1.65rem;
+  height: 1.65rem;
   border: 1px solid var(--line);
   color: var(--text-faint);
   flex: none;
@@ -583,45 +686,39 @@ onMounted(() => {
 }
 .activity-row__copy strong {
   display: block;
-  font-size: 0.77rem;
-  font-weight: 550;
+  font-size: 0.8rem;
+  font-weight: 650;
 }
 .activity-row__copy p {
   margin: 0.15rem 0 0;
-  font-size: 0.72rem;
-  color: var(--text-muted);
-  line-height: 1.4;
   overflow: hidden;
+  color: var(--text-muted);
+  font-size: 0.74rem;
+  line-height: 1.4;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 .activity-row__time {
-  font-family: var(--font-mono);
-  font-size: 0.6rem;
-  color: var(--text-faint);
-  white-space: nowrap;
   padding-top: 0.18rem;
+  color: var(--text-faint);
+  font-size: 0.7rem;
+  white-space: nowrap;
 }
 
 .brain-panel {
-  background:
-    linear-gradient(145deg, color-mix(in srgb, var(--accent) 5%, transparent), transparent 50%),
-    var(--surface);
+  border-top: 3px solid var(--accent);
 }
 .brain-state {
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
-  font-family: var(--font-mono);
-  font-size: 0.6rem;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
   color: var(--text-faint);
+  font-size: 0.72rem;
+  font-weight: 600;
 }
 .brain-state__dot {
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
+  width: 0.4rem;
+  height: 0.4rem;
   background: var(--text-faint);
 }
 .brain-state--online {
@@ -632,15 +729,15 @@ onMounted(() => {
 }
 .brain-panel__model {
   margin: 0;
-  font-size: 0.7rem;
   color: var(--accent);
+  font-size: 0.76rem;
 }
 .brain-panel__copy {
+  max-width: 60ch;
   margin: 0.55rem 0 0.9rem;
   color: var(--text-muted);
-  font-size: 0.8rem;
+  font-size: 0.82rem;
   line-height: 1.6;
-  max-width: 60ch;
 }
 
 .first-run {
@@ -648,39 +745,40 @@ onMounted(() => {
   align-items: center;
   justify-content: space-between;
   gap: 1.6rem;
-  margin-top: 1.4rem;
-  padding: 1.4rem 1.5rem;
-  border: 1px solid color-mix(in srgb, var(--accent) 20%, var(--line));
-  border-radius: var(--radius);
-  background:
-    linear-gradient(120deg, color-mix(in srgb, var(--accent) 7%, transparent), transparent 60%),
-    var(--surface);
+  margin-top: 1.35rem;
+  padding: 1.35rem 1.4rem;
+  border: 1px solid var(--line-strong);
+  border-left: 4px solid var(--signal);
+  background: var(--surface);
+  box-shadow: 4px 4px 0 var(--shadow-color);
 }
 .first-run__copy h2 {
-  margin: 0.35rem 0 0;
+  max-width: 24ch;
+  margin: 0.4rem 0 0;
   font-family: var(--font-display);
-  font-size: clamp(1.3rem, 2.2vw, 1.65rem);
-  font-weight: 470;
-  letter-spacing: -0.02em;
+  font-size: clamp(1.5rem, 2.4vw, 2.1rem);
+  font-weight: 600;
+  letter-spacing: -0.045em;
+  line-height: 1;
 }
 .first-run__copy p {
-  margin: 0.5rem 0 0;
   max-width: 66ch;
+  margin: 0.55rem 0 0;
   color: var(--text-muted);
-  font-size: 0.8rem;
+  font-size: 0.82rem;
   line-height: 1.55;
 }
 .first-run > .row {
   flex-wrap: nowrap;
 }
 .dashboard-foot {
+  max-width: 90ch;
   margin: 1.6rem 0 0;
   padding-top: 1rem;
   border-top: 1px solid var(--line);
-  font-size: 0.7rem;
-  line-height: 1.6;
   color: var(--text-faint);
-  max-width: 90ch;
+  font-size: 0.74rem;
+  line-height: 1.6;
 }
 .dashboard-loading {
   display: flex;
@@ -688,12 +786,21 @@ onMounted(() => {
   gap: 1.1rem;
 }
 
-@media (max-width: 1100px) {
+@media (max-width: 1180px) {
+  .shift-stage {
+    grid-template-columns: 1fr;
+  }
+  .shift-stage__copy {
+    padding: 1.3rem;
+  }
   .action-grid {
     grid-template-columns: 1fr;
   }
 }
 @media (max-width: 720px) {
+  .shift-stage__facts {
+    grid-template-columns: 1fr 1fr;
+  }
   .first-run {
     flex-direction: column;
     align-items: flex-start;
