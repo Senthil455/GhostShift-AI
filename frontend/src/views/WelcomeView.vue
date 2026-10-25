@@ -567,7 +567,7 @@ onMounted(() => {
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 1rem;
   margin: 0;
-  padding: 0;
+  padding: 0.2rem 0.45rem 0.5rem 0;
   list-style: none;
   perspective: 1000px;
 }
