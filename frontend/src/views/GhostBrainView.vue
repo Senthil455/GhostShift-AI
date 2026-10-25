@@ -515,14 +515,14 @@ onMounted(async () => {
 .brain-hero {
   padding: 1.3rem 1.4rem 1.1rem;
   margin-bottom: 1.3rem;
-  background:
-    linear-gradient(135deg, color-mix(in srgb, var(--accent) 5%, transparent), transparent 55%),
-    var(--surface);
+  border-left: 3px solid var(--accent);
+  background: var(--surface);
 }
 .brain-hero--danger {
-  background:
-    linear-gradient(135deg, color-mix(in srgb, var(--danger) 5%, transparent), transparent 55%),
-    var(--surface);
+  border-left-color: var(--danger);
+}
+.brain-hero--warning {
+  border-left-color: var(--warn);
 }
 .brain-hero__state {
   display: flex;
@@ -534,28 +534,25 @@ onMounted(async () => {
   min-width: 0;
 }
 .brain-hero__dot {
-  width: 0.7rem;
-  height: 0.7rem;
-  margin-top: 0.5rem;
-  border-radius: 50%;
+  width: 0.55rem;
+  height: 0.55rem;
+  margin-top: 0.55rem;
+  border-radius: 0;
   background: var(--danger);
-  box-shadow: 0 0 0 5px color-mix(in srgb, var(--danger) 12%, transparent);
   flex: none;
 }
 .brain-hero--success .brain-hero__dot {
   background: var(--ok);
-  box-shadow: 0 0 0 5px color-mix(in srgb, var(--ok) 12%, transparent);
 }
 .brain-hero--warning .brain-hero__dot {
   background: var(--warn);
-  box-shadow: 0 0 0 5px color-mix(in srgb, var(--warn) 12%, transparent);
 }
 .brain-hero h2 {
   margin: 0.35rem 0 0;
   font-family: var(--font-display);
   font-size: clamp(1.5rem, 2.7vw, 2rem);
-  font-weight: 460;
-  letter-spacing: -0.025em;
+  font-weight: 600;
+  letter-spacing: -0.04em;
 }
 .brain-hero__state .mono {
   margin: 0.35rem 0 0;
@@ -582,17 +579,18 @@ onMounted(async () => {
 }
 .brain-hero__stats span {
   display: block;
-  font-family: var(--font-mono);
-  font-size: 0.57rem;
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
   color: var(--text-faint);
+  font-family: var(--font-sans);
+  font-size: 0.68rem;
+  font-weight: 650;
+  letter-spacing: 0;
+  text-transform: none;
 }
 .brain-hero__stats strong {
   display: block;
   margin-top: 0.25rem;
   font-size: 0.86rem;
-  font-weight: 550;
+  font-weight: 650;
 }
 .brain-hero__date {
   font-family: var(--font-mono);
@@ -610,8 +608,8 @@ onMounted(async () => {
   grid-template-columns: minmax(0, 1.4fr) minmax(300px, 0.9fr);
 }
 .panel__hint {
-  font-family: var(--font-mono);
-  font-size: 0.6rem;
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
   color: var(--text-faint);
 }
 .brain-form {
@@ -746,16 +744,18 @@ onMounted(async () => {
   place-items: center;
   width: 2rem;
   height: 2rem;
-  border: 1px solid var(--line);
-  border-radius: 50%;
-  color: var(--accent);
+  border: 1px solid var(--line-strong);
+  border-radius: 0;
+  color: var(--signal);
   flex: none;
   margin-top: 0.05rem;
 }
 .guardrail h3 {
   margin: 0;
-  font-size: 0.8rem;
+  font-family: var(--font-display);
+  font-size: 0.98rem;
   font-weight: 600;
+  letter-spacing: -0.02em;
 }
 .guardrail p {
   margin: 0.3rem 0 0;
@@ -788,7 +788,7 @@ onMounted(async () => {
   width: 1.55rem;
   height: 1.55rem;
   border: 1px solid var(--line);
-  border-radius: 50%;
+  border-radius: 0;
   color: var(--text-faint);
   flex: none;
   margin-top: 0.05rem;
@@ -834,13 +834,14 @@ onMounted(async () => {
 }
 .fact-list span {
   color: var(--text-faint);
-  font-family: var(--font-mono);
-  font-size: 0.6rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  font-family: var(--font-sans);
+  font-size: 0.68rem;
+  font-weight: 650;
+  text-transform: none;
+  letter-spacing: 0;
 }
 .fact-list strong {
-  font-weight: 550;
+  font-weight: 650;
   text-align: right;
   overflow-wrap: anywhere;
 }
@@ -860,8 +861,8 @@ onMounted(async () => {
   margin: 0.4rem 0 0;
   font-family: var(--font-display);
   font-size: clamp(1.4rem, 2.4vw, 1.8rem);
-  font-weight: 460;
-  letter-spacing: -0.02em;
+  font-weight: 600;
+  letter-spacing: -0.04em;
 }
 .prompt-section__head p {
   margin: 0.45rem 0 0;
@@ -877,8 +878,9 @@ onMounted(async () => {
   border: 0;
   background: none;
   padding: 0;
-  font-family: var(--font-mono);
-  font-size: 0.63rem;
+  font-family: var(--font-sans);
+  font-size: 0.74rem;
+  font-weight: 650;
   color: var(--accent);
   white-space: nowrap;
 }
@@ -893,39 +895,44 @@ onMounted(async () => {
   gap: 0.7rem;
   padding: 0.95rem;
   border: 1px solid var(--line);
-  border-radius: var(--radius);
-  background: color-mix(in srgb, var(--surface) 82%, transparent);
+  border-radius: 0;
+  background: var(--surface);
+  box-shadow: 4px 4px 0 var(--shadow-color);
   color: var(--text);
   transition:
     border-color 150ms ease,
     background 150ms ease,
-    transform 150ms var(--ease);
+    transform 150ms var(--ease),
+    box-shadow 150ms var(--ease);
 }
 .prompt-card:hover {
-  border-color: var(--line-strong);
+  border-color: var(--accent);
   background: var(--surface-2);
   color: var(--text);
-  transform: translateY(-1px);
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 color-mix(in srgb, var(--accent) 30%, transparent);
 }
 .prompt-card__icon {
   display: grid;
   place-items: center;
   width: 2rem;
   height: 2rem;
-  border: 1px solid var(--line);
-  border-radius: 50%;
-  color: var(--accent);
+  border: 1px solid var(--line-strong);
+  border-radius: 0;
+  color: var(--signal);
   flex: none;
 }
 .prompt-card h3 {
   margin: 0.15rem 0 0;
-  font-size: 0.8rem;
+  font-family: var(--font-display);
+  font-size: 1rem;
   font-weight: 600;
+  letter-spacing: -0.025em;
 }
 .prompt-card p {
   margin: 0.35rem 0 0;
   color: var(--text-muted);
-  font-size: 0.72rem;
+  font-size: 0.76rem;
   line-height: 1.5;
 }
 .prompt-card__arrow {

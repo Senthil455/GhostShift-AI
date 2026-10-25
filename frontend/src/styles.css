@@ -941,6 +941,68 @@ input[type='checkbox'] {
   }
 }
 
+/* Normalize legacy labels and decorative circles into the plate language. */
+.eyebrow,
+[class*='__label'],
+[class*='__kicker'],
+[class*='__tag'] {
+  font-family: var(--font-sans) !important;
+  font-size: 0.78rem !important;
+  font-weight: 650 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+}
+
+.mono {
+  text-transform: none !important;
+}
+
+.panel__hint {
+  font-family: var(--font-sans) !important;
+  font-size: 0.72rem !important;
+  letter-spacing: 0 !important;
+}
+
+.panel__link {
+  font-family: var(--font-sans) !important;
+  font-size: 0.74rem !important;
+  font-weight: 650 !important;
+  letter-spacing: 0 !important;
+}
+
+.history-tab__count {
+  border-radius: 0 !important;
+}
+
+.plan__ready,
+.run-live,
+.run-meta__facts span,
+.resolved-approval__note span,
+.version-block summary,
+.model-state,
+.facts dt,
+.dev-stats span,
+.dev-picker label,
+.dev-markdown summary,
+.savings-figure span,
+.duplicate-report__summary span,
+.system-fact > span,
+.system-paths span {
+  font-family: var(--font-sans) !important;
+  font-size: 0.68rem !important;
+  font-weight: 650 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+}
+
+[class*='__dot'],
+[class*='__mark'],
+[class*='__icon'],
+[class*='__signal'],
+[class*='__risk'] {
+  border-radius: 0 !important;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

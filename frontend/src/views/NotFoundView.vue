@@ -11,7 +11,7 @@ const destinations = [
 
 <template>
   <div class="not-found">
-    <p class="eyebrow">404 · Outside the map</p>
+    <p class="not-found__kicker"><span /> 404 / Outside the map</p>
     <h1>This corridor goes nowhere.</h1>
     <p class="not-found__copy">
       The page may have moved, or the link may be incomplete. Nothing was changed, and no run was started.
@@ -44,16 +44,32 @@ const destinations = [
 
 <style scoped>
 .not-found {
-  max-width: 760px;
+  max-width: 860px;
   margin: clamp(1rem, 6vh, 4rem) auto 0;
+  padding-left: clamp(1rem, 2.4vw, 1.8rem);
+  border-left: 3px solid var(--signal);
+}
+.not-found__kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+  color: var(--text-faint);
+  font-size: 0.76rem;
+  font-weight: 650;
+}
+.not-found__kicker span {
+  width: 0.42rem;
+  height: 0.42rem;
+  background: var(--signal);
 }
 .not-found h1 {
-  margin: 0.75rem 0 0;
+  margin: 0.8rem 0 0;
   font-family: var(--font-display);
-  font-size: clamp(2.4rem, 5vw, 4rem);
-  font-weight: 400;
-  letter-spacing: -0.035em;
-  line-height: 1;
+  font-size: clamp(2.7rem, 5.4vw, 4.8rem);
+  font-weight: 600;
+  letter-spacing: -0.06em;
+  line-height: 0.92;
 }
 .not-found__copy {
   margin: 1rem 0 0;
@@ -90,9 +106,9 @@ const destinations = [
   place-items: center;
   width: 2rem;
   height: 2rem;
-  border: 1px solid var(--line);
-  border-radius: 50%;
-  color: var(--accent);
+  border: 1px solid var(--line-strong);
+  border-radius: 0;
+  color: var(--signal);
   flex: none;
 }
 .destination div {
@@ -118,8 +134,6 @@ const destinations = [
 .not-found__foot {
   margin: 2rem 0 0;
   color: var(--text-faint);
-  font-size: 0.6rem;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  font-size: 0.72rem;
 }
 </style>

@@ -72,7 +72,6 @@ onBeforeUnmount(() => {
   border-radius: 0;
   background: var(--surface-2);
   box-shadow: 4px 4px 0 var(--accent);
-  clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 0 100%);
   overflow: hidden;
   animation: boot-mark 1.1s var(--ease) both;
 }
@@ -98,15 +97,15 @@ onBeforeUnmount(() => {
   bottom: 0.55rem;
   width: 7px;
   height: 7px;
-  border-radius: 50%;
-  background: var(--accent-strong);
+  border-radius: 0;
+  background: var(--signal);
 }
 .boot__name {
   margin: 0;
   font-family: var(--font-display);
   font-size: 2rem;
-  font-weight: 480;
-  letter-spacing: -0.025em;
+  font-weight: 600;
+  letter-spacing: -0.04em;
 }
 .boot__name em {
   font-style: normal;
@@ -126,9 +125,8 @@ onBeforeUnmount(() => {
 }
 .boot__hint {
   margin: 0.75rem 0 0;
-  font-family: var(--font-mono);
-  font-size: 0.62rem;
-  letter-spacing: 0.04em;
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
   color: var(--text-faint);
 }
 @keyframes boot-mark {

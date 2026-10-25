@@ -14,6 +14,7 @@ async function patch(data) {
   if (!response.ok) throw new Error(`settings patch failed: ${response.status} ${await response.text()}`)
 }
 
+await patch({ onboardingCompleted: true, theme: 'dark' })
 const browser = await chromium.launch({ headless: true })
 const page = await browser.newPage({ viewport: { width: 1440, height: 1000 }, deviceScaleFactor: 1 })
 const errors = []
@@ -22,53 +23,23 @@ page.on('console', (message) => {
 })
 page.on('pageerror', (error) => errors.push(`pageerror: ${error.message}`))
 
-await patch({ onboardingCompleted: false, theme: 'dark' })
-await page.goto('http://127.0.0.1:5173/overview', { waitUntil: 'networkidle' })
-await page.waitForTimeout(2600)
-await page.screenshot({ path: `${out}/welcome-dark-1440.png`, fullPage: true })
-
-await patch({ onboardingCompleted: true, theme: 'dark' })
-await page.goto('http://127.0.0.1:5173/overview', { waitUntil: 'networkidle' })
-await page.waitForTimeout(2600)
-await page.screenshot({ path: `${out}/overview-dark-1440.png`, fullPage: true })
-
-for (const route of ['sort', 'brain', 'settings', 'history', 'approvals']) {
+for (const route of ['dev', 'capture', 'replay', 'pulse', 'history/runs/1', 'not-a-real-page']) {
   await page.goto(`http://127.0.0.1:5173/${route}`, { waitUntil: 'networkidle' })
-  await page.waitForTimeout(700)
-  await page.screenshot({ path: `${out}/${route}-dark-1440.png`, fullPage: true })
+  await page.waitForTimeout(900)
+  await page.screenshot({ path: `${out}/${route.replaceAll('/', '-')}-dark-1440.png`, fullPage: true })
 }
 
-await page.goto('http://127.0.0.1:5173/settings', { waitUntil: 'networkidle' })
-await page.waitForTimeout(600)
-await page.getByRole('button', { name: /Light/ }).click()
-await page.waitForTimeout(900)
-await page.goto('http://127.0.0.1:5173/overview', { waitUntil: 'networkidle' })
-await page.waitForTimeout(2200)
-await page.screenshot({ path: `${out}/overview-light-1440.png`, fullPage: true })
-
-await patch({ onboardingCompleted: true, theme: 'dark' })
 await page.setViewportSize({ width: 390, height: 844 })
-await page.goto('http://127.0.0.1:5173/overview', { waitUntil: 'networkidle' })
-await page.waitForTimeout(2200)
-await page.screenshot({ path: `${out}/overview-dark-390.png`, fullPage: true })
+for (const route of ['sort', 'brain', 'settings']) {
+  await page.goto(`http://127.0.0.1:5173/${route}`, { waitUntil: 'networkidle' })
+  await page.waitForTimeout(700)
+  await page.screenshot({ path: `${out}/${route}-dark-390.png`, fullPage: true })
+  const overflow = await page.evaluate(() => ({
+    scrollWidth: document.documentElement.scrollWidth,
+    clientWidth: document.documentElement.clientWidth,
+  }))
+  console.log(route, overflow)
+}
 
-await patch({ onboardingCompleted: false, theme: 'dark' })
-await page.goto('http://127.0.0.1:5173/overview', { waitUntil: 'networkidle' })
-await page.waitForTimeout(2200)
-await page.screenshot({ path: `${out}/welcome-dark-390.png`, fullPage: true })
-
-await patch({ onboardingCompleted: true, theme: 'dark' })
-await page.goto('http://127.0.0.1:5173/overview', { waitUntil: 'networkidle' })
-await page.waitForTimeout(800)
-const metrics = await page.evaluate(() => ({
-  scrollWidth: document.documentElement.scrollWidth,
-  clientWidth: document.documentElement.clientWidth,
-  bodyHeight: document.body.scrollHeight,
-  canvas: Array.from(document.querySelectorAll('canvas')).map((canvas) => ({
-    width: canvas.width,
-    height: canvas.height,
-    rect: canvas.getBoundingClientRect().toJSON(),
-  })),
-}))
-console.log(JSON.stringify({ errors, metrics }, null, 2))
+console.log(JSON.stringify({ errors }, null, 2))
 await browser.close()
