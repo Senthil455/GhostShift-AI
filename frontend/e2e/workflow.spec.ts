@@ -36,7 +36,7 @@ test('a live workflow pauses at the human gate, resumes from the UI, and records
       id: string
       validation: { valid: boolean; errors: string[] }
     }
-    expect(workflow.validation.valid, workflow.validation.errors.join('; ')).toBe(true)
+    expect(workflow.validation.valid, (workflow.validation.errors ?? []).join('; ')).toBe(true)
     workflowId = workflow.id
 
     const approved = await context.patch(`/api/v1/workflows/${workflowId}/status`, {

@@ -18,7 +18,7 @@ test('GhostCapture records allowlisted file steps and saves a reviewable draft',
     await page.locator('#recording-name').fill(recordingName)
     const picker = page.getByLabel('Working folder (optional)')
     await expect(picker.locator(`option:has-text("${folder.displayName}")`)).toHaveCount(1)
-    await picker.selectOption({ label: folder.displayName })
+    await picker.selectOption(String(folder.id))
     await page.getByRole('button', { name: 'Start recording' }).click()
 
     await expect(page.locator('.recording-head h2')).toHaveText(recordingName)

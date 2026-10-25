@@ -30,6 +30,11 @@ micronaut:
   router:
     static-resources:
       enabled: false
+  serde:
+    serialization:
+      # Keep API shapes stable: empty lists are meaningful (for example a workflow with no
+      # validation errors) and the Vue client expects arrays rather than missing properties.
+      inclusion: NON_NULL
 
 ghostshift:
   data-dir: ${GHOSTSHIFT_DATA_DIR:data}

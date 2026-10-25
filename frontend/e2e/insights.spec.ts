@@ -24,7 +24,7 @@ test('GhostDev analyzes a real log deterministically and GhostPulse reports exac
 
     const logPicker = page.getByLabel('Folder containing the log')
     await expect(logPicker.locator(`option:has-text("${folder.displayName}")`)).toHaveCount(1)
-    await logPicker.selectOption({ label: folder.displayName })
+    await logPicker.selectOption(String(folder.id))
     await page.getByRole('button', { name: 'Scan folder' }).click()
 
     const fileSelect = page.locator('#dev-file')
@@ -33,8 +33,8 @@ test('GhostDev analyzes a real log deterministically and GhostPulse reports exac
     await page.getByRole('button', { name: 'Analyze log' }).click()
 
     await expect(page.getByRole('heading', { name: /app\.log/ })).toBeVisible({ timeout: 25_000 })
-    await expect(page.getByText('Observed evidence')).toBeVisible()
-    await expect(page.getByText('Grouped signatures')).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Observed evidence' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Grouped signatures' })).toBeVisible()
     await expect(page.locator('.dev-stats')).toContainText('Errors')
     await expect(page.locator('.dev-report')).toContainText('Deterministic only')
     await expect(page.getByText('Full Markdown report')).toBeVisible()
@@ -43,7 +43,7 @@ test('GhostDev analyzes a real log deterministically and GhostPulse reports exac
     await expect(page.getByRole('heading', { name: 'Measure the shift, honestly.' })).toBeVisible()
     const duplicatePicker = page.getByLabel('Folder to inspect')
     await expect(duplicatePicker.locator(`option:has-text("${folder.displayName}")`)).toHaveCount(1)
-    await duplicatePicker.selectOption({ label: folder.displayName })
+    await duplicatePicker.selectOption(String(folder.id))
     await page.getByRole('button', { name: 'Scan for duplicates' }).click()
 
     const report = page.locator('.duplicate-report')
