@@ -615,9 +615,13 @@ onMounted(async () => {
 }
 .capture-start__form {
   display: grid;
-  grid-template-columns: 1fr 1.3fr auto;
-  gap: 0.75rem;
-  align-items: end;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.85rem;
+  align-items: start;
+}
+.capture-start__form .btn {
+  grid-column: 1 / -1;
+  justify-self: start;
 }
 .recording-strip {
   display: flex;
@@ -788,13 +792,6 @@ onMounted(async () => {
     grid-template-columns: 1fr;
     gap: 1.2rem;
   }
-  .capture-start__form {
-    grid-template-columns: 1fr 1.2fr;
-  }
-  .capture-start__form .btn {
-    grid-column: 2;
-    justify-self: start;
-  }
   .add-step__form {
     grid-template-columns: 1fr 1fr;
   }
@@ -812,6 +809,7 @@ onMounted(async () => {
   }
   .capture-start__form .btn {
     grid-column: auto;
+    justify-self: stretch;
   }
   .recording-head {
     flex-direction: column;

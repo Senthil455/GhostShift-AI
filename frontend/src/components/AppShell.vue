@@ -176,6 +176,7 @@ watch(
   min-height: 100vh;
   display: grid;
   grid-template-columns: var(--sidebar) minmax(0, 1fr);
+  overflow-x: clip;
 }
 
 .skip-link {

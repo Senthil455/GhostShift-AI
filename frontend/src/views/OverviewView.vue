@@ -4,7 +4,7 @@ import { RouterLink } from 'vue-router'
 import { api } from '@/api/client'
 import type { ActivityItem, Insight } from '@/api/types'
 import { errorMessage } from '@/lib/errors'
-import { duration, minutes, relativeTime } from '@/lib/format'
+import { duration, minutes, plural, relativeTime } from '@/lib/format'
 import { useSessionStore } from '@/stores/session'
 import { useToastStore } from '@/stores/toast'
 import EmptyState from '@/components/EmptyState.vue'
@@ -150,7 +150,7 @@ onMounted(() => {
       <div class="stat">
         <p class="stat__label">Files organized</p>
         <p class="stat__value numeric">{{ dashboard.filesOrganized }}</p>
-        <p class="stat__sub">{{ dashboard.filesScanned }} files reviewed in plans</p>
+        <p class="stat__sub">{{ dashboard.filesScanned }} {{ plural(dashboard.filesScanned, 'file') }} reviewed in plans</p>
       </div>
       <div class="stat">
         <p class="stat__label">Estimated time saved</p>

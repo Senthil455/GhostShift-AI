@@ -966,13 +966,21 @@ onBeforeUnmount(stopPolling)
     flex-direction: column;
   }
   .tabs {
+    flex: 1 1 100%;
+    min-width: 0;
+    max-width: 100%;
     overflow-x: auto;
   }
   .plan__tools {
+    flex: 1 1 100%;
+    min-width: 0;
+    max-width: 100%;
     justify-content: flex-start;
   }
   .search-box {
     flex: 1;
+    min-width: 0;
+    max-width: 100%;
   }
   .search-box input {
     width: 100%;
