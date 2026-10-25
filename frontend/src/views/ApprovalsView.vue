@@ -3,7 +3,7 @@ import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import type { Approval, WorkflowRun } from '@/api/types'
 import { errorMessage } from '@/lib/errors'
-import { humanDate, relativeTime } from '@/lib/format'
+import { humanDate, plural, relativeTime } from '@/lib/format'
 import { useSessionStore } from '@/stores/session'
 import { useToastStore } from '@/stores/toast'
 import ApprovalCard from '@/components/ApprovalCard.vue'
@@ -159,7 +159,7 @@ onBeforeUnmount(() => {
       <section v-if="recent.length" class="panel recent-panel">
         <header class="panel__head">
           <h2>Decided in this session</h2>
-          <span class="panel__hint">{{ recent.length }} record(s)</span>
+          <span class="panel__hint">{{ recent.length }} {{ plural(recent.length, 'record') }}</span>
         </header>
         <div class="recent-list">
           <RouterLink

@@ -4,7 +4,7 @@ import { RouterLink, useRoute } from 'vue-router'
 import { api } from '@/api/client'
 import type { ActionExecution, Approval, RunEvent, WorkflowRun } from '@/api/types'
 import { errorMessage } from '@/lib/errors'
-import { duration, humanDate, relativeTime, riskTone, titleCase } from '@/lib/format'
+import { duration, humanDate, plural, relativeTime, riskTone, titleCase } from '@/lib/format'
 import { useSessionStore } from '@/stores/session'
 import { useToastStore } from '@/stores/toast'
 import ApprovalCard from '@/components/ApprovalCard.vue'
@@ -42,7 +42,7 @@ const failedCount = computed(() => actions.value.filter((action) => action.statu
 const description = computed(() => {
   if (!run.value) return 'Loading this local run record…'
   if (run.value.summary) return run.value.summary
-  return `${run.value.dryRun ? 'Dry run' : 'Live run'} · version ${run.value.workflowVersion} · ${actions.value.length} step(s)`
+  return `${run.value.dryRun ? 'Dry run' : 'Live run'} · version ${run.value.workflowVersion} · ${actions.value.length} ${plural(actions.value.length, 'step')}`
 })
 const cancelLabel = computed(() => {
   if (!run.value) return 'Cancel run'

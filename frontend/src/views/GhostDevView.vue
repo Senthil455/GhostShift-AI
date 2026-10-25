@@ -4,7 +4,7 @@ import { useRoute } from 'vue-router'
 import { downloadReport, api } from '@/api/client'
 import type { FileInfo, ReportSummary, ReportView, ScanResult } from '@/api/types'
 import { errorMessage } from '@/lib/errors'
-import { bytes, humanDate, relativeTime } from '@/lib/format'
+import { bytes, humanDate, plural, relativeTime } from '@/lib/format'
 import { useSessionStore } from '@/stores/session'
 import { useToastStore } from '@/stores/toast'
 import DirectoryPicker from '@/components/DirectoryPicker.vue'
@@ -83,7 +83,7 @@ async function runScan() {
     scan.value = await api.scan(directoryId.value, recursive.value)
     const first = scan.value.files.find((file) => TEXT_EXTENSIONS.has(file.extension))
     if (first) selectedFile.value = first.relativePath
-    toast.success('Folder scanned', `${scan.value.fileCount} file(s) read within the folder boundary.`)
+    toast.success('Folder scanned', `${scan.value.fileCount} ${plural(scan.value.fileCount, 'file')} read within the folder boundary.`)
   } catch (cause) {
     error.value = errorMessage(cause, 'The folder could not be scanned.')
   } finally {

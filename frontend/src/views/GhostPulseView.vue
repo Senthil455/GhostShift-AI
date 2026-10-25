@@ -4,7 +4,7 @@ import { RouterLink } from 'vue-router'
 import { api } from '@/api/client'
 import type { DuplicateGroup, DuplicateReport, Insight, TimeSavingsView } from '@/api/types'
 import { errorMessage } from '@/lib/errors'
-import { bytes, duration, humanDate, minutes, relativeTime } from '@/lib/format'
+import { bytes, duration, humanDate, minutes, plural, relativeTime } from '@/lib/format'
 import { useSessionStore } from '@/stores/session'
 import { useToastStore } from '@/stores/toast'
 import DirectoryPicker from '@/components/DirectoryPicker.vue'
@@ -109,7 +109,7 @@ async function inspectDuplicates() {
     duplicateReport.value = await api.duplicates(directoryId.value, recursive.value)
     toast.success(
       'Duplicate scan complete',
-      `${duplicateReport.value.groups.length} group(s) found. Nothing was deleted or changed.`,
+      `${duplicateReport.value.groups.length} ${plural(duplicateReport.value.groups.length, 'group')} found. Nothing was deleted or changed.`,
     )
   } catch (cause) {
     duplicateError.value = errorMessage(cause, 'The duplicate scan could not be completed.')
@@ -319,7 +319,7 @@ onMounted(async () => {
               <strong>{{ group.label }}</strong>
             </div>
             <div class="duplicate-group__size">
-              <span class="mono">{{ group.files.length }} files · {{ bytes(group.sizeBytes) }} each</span>
+              <span class="mono">{{ group.files.length }} {{ plural(group.files.length, 'file') }} · {{ bytes(group.sizeBytes) }} each</span>
               <span v-if="group.kind === 'EXACT'" class="duplicate-group__overlap numeric">
                 {{ bytes(groupOverlap(group)) }} overlap
               </span>
