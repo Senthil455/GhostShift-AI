@@ -62,7 +62,7 @@ public class SettingsService {
                         rs.getInt("max_input_chars"),
                         rs.getString("last_health_status"),
                         rs.getString("last_health_at"),
-                        (Long) rs.getObject("last_latency_ms")
+                        sqliteLong(rs.getObject("last_latency_ms"))
                 )).orElseThrow(() -> ApiException.internal("Model configuration is missing."));
     }
 
@@ -228,6 +228,14 @@ public class SettingsService {
             result.put(category.name(), sanitizeFolderName(entry.getValue(), category.folder()));
         }
         return result;
+    }
+
+    /**
+     * SQLite's JDBC driver returns the narrowest integer type that fits. A value written as a
+     * Java long but stored as 0 comes back as Integer, so never cast the object directly.
+     */
+    private static Long sqliteLong(Object value) {
+        return value instanceof Number number ? number.longValue() : null;
     }
 
     private static String sanitizeFolderName(String value, String fallback) {

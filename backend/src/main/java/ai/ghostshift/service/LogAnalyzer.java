@@ -52,7 +52,11 @@ public class LogAnalyzer {
         boolean truncated = size > maxBytes;
         String content = readBounded(file, maxBytes, truncated);
         String[] lines = content.split("\\R", -1);
-        int totalLines = lines.length;
+        // split(-1) keeps a trailing empty element when the file ends with a newline.
+        int totalLines = content.isEmpty() ? 0 : lines.length;
+        if (totalLines > 0 && lines[totalLines - 1].isEmpty()) {
+            totalLines--;
+        }
         int errorLines = 0;
         int warningLines = 0;
         Map<String, GroupBuilder> groups = new LinkedHashMap<>();
@@ -77,10 +81,9 @@ public class LogAnalyzer {
                 lastTimestamp = timestamp;
             }
             Matcher levelMatcher = LEVEL.matcher(line);
-            boolean error = levelMatcher.find() && (levelMatcher.group(1).equalsIgnoreCase("ERROR")
-                    || levelMatcher.group(1).equalsIgnoreCase("FATAL")
-                    || levelMatcher.group(1).equalsIgnoreCase("SEVERE"));
-            boolean warning = levelMatcher.find() && levelMatcher.group(1).toUpperCase(Locale.ROOT).startsWith("WARN");
+            String level = levelMatcher.find() ? levelMatcher.group(1).toUpperCase(Locale.ROOT) : "";
+            boolean error = level.equals("ERROR") || level.equals("FATAL") || level.equals("SEVERE");
+            boolean warning = level.startsWith("WARN");
             if (warning) {
                 warningLines++;
             }

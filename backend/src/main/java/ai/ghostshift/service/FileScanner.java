@@ -55,7 +55,6 @@ public class FileScanner {
         List<ScannedFile> files = new ArrayList<>();
         int[] skippedSymlinks = {0};
         boolean[] truncated = {false};
-        Path dataDir = config.dataDir();
         try {
             Files.walkFileTree(root, Set.of(), depth, new SimpleFileVisitor<>() {
                 @Override
@@ -63,8 +62,8 @@ public class FileScanner {
                     if (!dir.equals(root)) {
                         String name = dir.getFileName() == null ? "" : dir.getFileName().toString();
                         if (Files.isSymbolicLink(dir) || SKIP_DIRECTORIES.contains(name)
-                                || name.startsWith(".") || (name.equals(ORGANIZER_FOLDER) && dir.getParent().equals(root))
-                                || dir.toAbsolutePath().normalize().startsWith(dataDir)) {
+                                || name.startsWith(".")
+                                || (name.equals(ORGANIZER_FOLDER) && dir.getParent().equals(root))) {
                             return FileVisitResult.SKIP_SUBTREE;
                         }
                     }

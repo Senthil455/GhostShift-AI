@@ -1,6 +1,7 @@
 package ai.ghostshift.api;
 
 import ai.ghostshift.domain.Approval;
+import ai.ghostshift.domain.DuplicateReport;
 import ai.ghostshift.domain.HistoryPage;
 import ai.ghostshift.domain.OrganizationPlan;
 import ai.ghostshift.domain.RegisteredDirectory;
@@ -54,6 +55,24 @@ class ApiIntegrationTest {
                 HttpRequest.GET("/api/v1/system/info"), String.class);
         assertEquals(HttpStatus.OK, info.getStatus());
         assertTrue(info.body().contains("databasePath"));
+
+        // Refreshing against a deliberately unreachable Ollama endpoint writes a numeric
+        // latency to SQLite. Reading settings afterwards must not assume a Java Long.
+        HttpResponse<String> ai = client.toBlocking().exchange(
+                HttpRequest.GET("/api/v1/ai/status?refresh=true"), String.class);
+        assertEquals(HttpStatus.OK, ai.getStatus());
+        assertTrue(ai.body().contains("\"reachable\":false"));
+
+        HttpResponse<String> settings = client.toBlocking().exchange(
+                HttpRequest.GET("/api/v1/settings"), String.class);
+        assertEquals(HttpStatus.OK, settings.getStatus());
+        assertTrue(settings.body().contains("\"model\""));
+        assertTrue(settings.body().contains("\"approvals\""));
+
+        HttpResponse<String> dashboard = client.toBlocking().exchange(
+                HttpRequest.GET("/api/v1/insights/dashboard"), String.class);
+        assertEquals(HttpStatus.OK, dashboard.getStatus());
+        assertTrue(dashboard.body().contains("\"aiStatus\""));
     }
 
     @Test
@@ -198,6 +217,99 @@ class ApiIntegrationTest {
     }
 
     @Test
+    void duplicateScanFindsExactContentRecursivelyWithoutDeletingAnything() throws IOException {
+        Path root = Files.createTempDirectory("ghostshift-api-duplicates-");
+        Files.createDirectories(root.resolve("nested/deeper"));
+        String duplicateContent = "The same synthetic content, hashed but never deleted.\n";
+        Files.writeString(root.resolve("notes.txt"), duplicateContent);
+        Files.writeString(root.resolve("nested/deeper/notes-copy.txt"), duplicateContent);
+        Files.writeString(root.resolve("unique.txt"), "A different file with a unique body.\n");
+
+        RegisteredDirectory directory = client.toBlocking().retrieve(
+                HttpRequest.POST("/api/v1/directories", Map.of(
+                                "path", root.toString(),
+                                "displayName", "Integration duplicate folder",
+                                "directoryType", "GENERAL",
+                                "allowOrganize", false))
+                        .contentType(MediaType.APPLICATION_JSON_TYPE),
+                RegisteredDirectory.class);
+
+        DuplicateReport report = client.toBlocking().retrieve(
+                HttpRequest.GET("/api/v1/insights/duplicates?directoryId=" + directory.id() + "&recursive=true"),
+                DuplicateReport.class);
+
+        assertEquals(2, report.filesHashed(), "Only files of equal size need hashing");
+        var exact = report.groups().stream()
+                .filter(group -> group.kind().equals("EXACT"))
+                .findFirst()
+                .orElseThrow(() -> new AssertionError("Expected an exact duplicate group"));
+        List<String> duplicated = exact.files().stream()
+                .map(file -> file.relativePath().replace('\\', '/'))
+                .toList();
+        assertTrue(duplicated.contains("notes.txt"));
+        assertTrue(duplicated.contains("nested/deeper/notes-copy.txt"));
+        assertTrue(Files.exists(root.resolve("notes.txt")), "Duplicate detection must never delete files");
+        assertTrue(Files.exists(root.resolve("nested/deeper/notes-copy.txt")));
+    }
+
+    @Test
+    void settingsRejectUnsafeValuesAndNormalizeFolderNames() {
+        HttpClientResponseException invalidTheme = assertBadRequest(
+                HttpRequest.PATCH("/api/v1/settings", Map.of("theme", "system"))
+                        .contentType(MediaType.APPLICATION_JSON_TYPE));
+        assertTrue(invalidTheme.getResponse().getBody(String.class).orElse("").contains("dark or light"));
+
+        HttpClientResponseException invalidEndpoint = assertBadRequest(
+                HttpRequest.PATCH("/api/v1/settings", Map.of(
+                                "model", Map.of("endpoint", "file:///etc/passwd")))
+                        .contentType(MediaType.APPLICATION_JSON_TYPE));
+        assertTrue(invalidEndpoint.getResponse().getBody(String.class).orElse("").contains("http"));
+
+        assertBadRequest(
+                HttpRequest.PATCH("/api/v1/settings", Map.of(
+                                "timeSavings", Map.of(
+                                        "fileReviewMinutesPerFile", -1,
+                                        "logAnalysisMinutes", 20,
+                                        "workflowReviewMinutes", 5)))
+                        .contentType(MediaType.APPLICATION_JSON_TYPE));
+
+        try {
+            var updated = client.toBlocking().retrieve(
+                    HttpRequest.PATCH("/api/v1/settings", Map.of(
+                                    "theme", "light",
+                                    "categoryFolders", Map.of("DOCUMENTS", "../../unsafe/name")))
+                            .contentType(MediaType.APPLICATION_JSON_TYPE),
+                    ai.ghostshift.domain.AppSettings.class);
+            assertEquals("light", updated.theme());
+            String documentsFolder = updated.categoryFolders().get("DOCUMENTS");
+            assertNotNull(documentsFolder);
+            assertFalse(documentsFolder.contains("/"), "Folder names must never contain path separators");
+            assertFalse(documentsFolder.contains("\\"), "Folder names must never contain path separators");
+            assertFalse(documentsFolder.equals(".") || documentsFolder.equals(".."));
+        } finally {
+            client.toBlocking().exchange(
+                    HttpRequest.PATCH("/api/v1/settings", Map.of("theme", "dark"))
+                            .contentType(MediaType.APPLICATION_JSON_TYPE),
+                    String.class);
+        }
+    }
+
+    @Test
+    void dataResetRequiresConfirmationAndAKnownScope() {
+        HttpClientResponseException wrongConfirmation = assertBadRequest(
+                HttpRequest.POST("/api/v1/data/reset", Map.of(
+                                "scope", "ACTIVITY", "confirmation", "delete"))
+                        .contentType(MediaType.APPLICATION_JSON_TYPE));
+        assertTrue(wrongConfirmation.getResponse().getBody(String.class).orElse("").contains("DELETE"));
+
+        HttpClientResponseException unknownScope = assertBadRequest(
+                HttpRequest.POST("/api/v1/data/reset", Map.of(
+                                "scope", "EVERYTHING", "confirmation", "DELETE"))
+                        .contentType(MediaType.APPLICATION_JSON_TYPE));
+        assertTrue(unknownScope.getResponse().getBody(String.class).orElse("").contains("ACTIVITY"));
+    }
+
+    @Test
     void unknownRunReturnsStructuredNotFound() {
         HttpClientResponseException error = assertThrows(HttpClientResponseException.class, () ->
                 client.toBlocking().exchange(HttpRequest.GET("/api/v1/runs/does-not-exist")));
@@ -213,6 +325,13 @@ class ApiIntegrationTest {
                 io.micronaut.core.type.Argument.listOf(WorkflowSummary.class));
 
         assertTrue(workflows.stream().anyMatch(workflow -> workflow.name().toLowerCase().contains("tidy")));
+    }
+
+    private HttpClientResponseException assertBadRequest(HttpRequest<?> request) {
+        HttpClientResponseException error = assertThrows(HttpClientResponseException.class, () ->
+                client.toBlocking().exchange(request, String.class));
+        assertEquals(HttpStatus.BAD_REQUEST, error.getStatus());
+        return error;
     }
 
     private OrganizationPlan awaitPlan(String planId, long timeoutMs) {

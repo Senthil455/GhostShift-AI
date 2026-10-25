@@ -83,7 +83,8 @@ export function humanStatus(value?: string | null): string {
 }
 
 export function titleCase(value: string): string {
-  return value.replace(/[_-]+/g, ' ').replace(/\b\w/g, (character) => character.toUpperCase())
+  const normalized = value === value.toUpperCase() ? value.toLowerCase() : value
+  return normalized.replace(/[_-]+/g, ' ').replace(/\b\w/g, (character) => character.toUpperCase())
 }
 
 export function categoryLabel(value?: string | null): string {

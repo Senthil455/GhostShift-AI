@@ -83,13 +83,18 @@ public class DuplicateService {
             if (entry.getValue().size() < 2 || entry.getKey().isBlank()) {
                 continue;
             }
-            boolean allExact = groups.stream()
-                    .anyMatch(group -> group.files().size() == entry.getValue().size());
+            var paths = entry.getValue().stream().map(FileScanner.ScannedFile::relativePath)
+                    .collect(Collectors.toSet());
+            boolean alsoIdentical = groups.stream()
+                    .filter(group -> group.kind().equals("EXACT"))
+                    .anyMatch(group -> group.files().stream()
+                            .map(DuplicateFile::relativePath)
+                            .collect(Collectors.toSet()).equals(paths));
             List<DuplicateFile> files = entry.getValue().stream()
                     .map(file -> new DuplicateFile(file.relativePath(), file.sizeBytes(), file.modifiedAt()))
                     .toList();
             groups.add(new DuplicateGroup("SIMILAR_NAME",
-                    allExact ? "Similar names (content may differ)" : "Similar file names",
+                    alsoIdentical ? "Similar names (also identical content)" : "Similar file names",
                     entry.getValue().getFirst().sizeBytes(), files));
         }
         groups.sort(Comparator.comparing(DuplicateGroup::kind).thenComparing(DuplicateGroup::label));

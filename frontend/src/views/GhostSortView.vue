@@ -227,19 +227,52 @@ async function changeCategory(action: PlanAction, event: Event) {
   if (!selected.value) return
   const category = (event.target as HTMLSelectElement).value as Category
   if (category === action.category) return
+  const shouldRemember = Boolean(remember.value[action.id])
   categoryBusy.value = action.id
   error.value = ''
   try {
     selected.value = normalizePlan(
       await api.patchPlanAction(selected.value.id, action.id, {
         category,
-        remember: Boolean(remember.value[action.id]),
+        remember: shouldRemember,
       }),
     )
     await loadPlans()
-    toast.info('Destination recalculated', `${action.fileName} now routes by ${category.toLowerCase().replaceAll('_', ' ')}.`)
+    if (shouldRemember) {
+      remember.value[action.id] = false
+    }
+    toast.info(
+      shouldRemember ? 'Category changed and remembered' : 'Destination recalculated',
+      `${action.fileName} now routes by ${category.toLowerCase().replaceAll('_', ' ')}.`,
+    )
   } catch (cause) {
     error.value = errorMessage(cause, 'That category could not be applied.')
+    if (selected.value) {
+      selected.value = normalizePlan(await api.plan(selected.value.id).catch(() => selected.value!))
+    }
+  } finally {
+    categoryBusy.value = ''
+  }
+}
+
+async function rememberCurrent(action: PlanAction, event: Event) {
+  if (!selected.value) return
+  const checked = (event.target as HTMLInputElement).checked
+  if (!checked) return
+  categoryBusy.value = action.id
+  error.value = ''
+  try {
+    selected.value = normalizePlan(
+      await api.patchPlanAction(selected.value.id, action.id, { remember: true }),
+    )
+    await loadPlans()
+    toast.success(
+      'Correction remembered',
+      `Future files named ${action.fileName} will route by ${action.category.toLowerCase().replaceAll('_', ' ')}.`,
+    )
+  } catch (cause) {
+    remember.value[action.id] = false
+    error.value = errorMessage(cause, 'That correction could not be remembered.')
   } finally {
     categoryBusy.value = ''
   }
@@ -509,7 +542,8 @@ onBeforeUnmount(stopPolling)
                     <input
                       v-model="remember[action.id]"
                       type="checkbox"
-                      :disabled="!reviewable"
+                      :disabled="!reviewable || categoryBusy === action.id"
+                      @change="rememberCurrent(action, $event)"
                     />
                     Remember
                   </label>
