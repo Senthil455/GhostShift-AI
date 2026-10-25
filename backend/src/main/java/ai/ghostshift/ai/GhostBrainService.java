@@ -223,7 +223,8 @@ public class GhostBrainService {
                     continue;
                 }
                 double confidence = clamp(parseDouble(map.get("confidence"), 0.55));
-                String reason = Text.truncate(String.valueOf(map.getOrDefault("reason", "")), 220);
+                Object reasonValue = map.get("reason");
+                String reason = Text.truncate(reasonValue == null ? "" : String.valueOf(reasonValue), 220);
                 if (reason.isBlank()) {
                     reason = "The local model chose this category from the file name.";
                 }

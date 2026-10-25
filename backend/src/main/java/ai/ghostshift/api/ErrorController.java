@@ -28,7 +28,7 @@ public class ErrorController {
         String requestId = requestId(request);
         LOG.info("requestId={} {} {} -> {} {}", requestId, request.getMethod(), request.getPath(),
                 exception.status(), exception.code());
-        return HttpResponse.<ApiError>status(exception.status())
+        return HttpResponse.<ApiError>status(HttpStatus.valueOf(exception.status()))
                 .header("X-Request-Id", requestId)
                 .body(exception.toError(requestId));
     }
@@ -58,7 +58,7 @@ public class ErrorController {
                 ? "That HTTP method is not supported here."
                 : "The request could not be completed.";
         ApiError error = new ApiError(code, message, Map.of(), requestId, java.time.Instant.now().toString());
-        return HttpResponse.<ApiError>status(status).header("X-Request-Id", requestId).body(error);
+        return HttpResponse.<ApiError>status(HttpStatus.valueOf(status)).header("X-Request-Id", requestId).body(error);
     }
 
     @Error(global = true)

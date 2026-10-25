@@ -124,12 +124,15 @@ public class OrganizationService {
         }
 
         String summary = buildPlanSummary(actions, conflicts, outcome, scan.truncated());
+        int actionCount = actions.size();
+        int conflictCount = conflicts;
+        String storedSummary = summary;
         db.inTransaction(connection -> {
             Database.execute(connection, """
                             INSERT INTO organization_plan
                                 (id, directory_id, status, file_count, conflict_count, summary, created_at, updated_at)
                             VALUES (?, ?, 'READY_FOR_REVIEW', ?, ?, ?, ?, ?)
-                            """, planId, directory.id(), actions.size(), conflicts, summary, now, now);
+                            """, planId, directory.id(), actionCount, conflictCount, storedSummary, now, now);
             for (PlanAction action : actions) {
                 Database.execute(connection, """
                                 INSERT INTO organization_action

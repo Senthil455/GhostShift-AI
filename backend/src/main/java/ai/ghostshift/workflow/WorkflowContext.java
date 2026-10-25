@@ -1,6 +1,5 @@
 package ai.ghostshift.workflow;
 
-import ai.ghostshift.domain.Category;
 import ai.ghostshift.domain.LogAnalysis;
 import io.micronaut.serde.annotation.Serdeable;
 
@@ -108,45 +107,4 @@ public record WorkflowContext(
         LinkedHashSet<String> selected = new LinkedHashSet<>(selectedFileIds);
         return files.stream().filter(file -> selected.contains(file.id())).toList();
     }
-}
-
-@Serdeable
-public record ContextFile(
-        String id,
-        String relativePath,
-        String name,
-        String extension,
-        long sizeBytes,
-        String modifiedAt
-) {
-}
-
-@Serdeable
-public record ContextClassification(
-        Category category,
-        double confidence,
-        String rationale,
-        String source
-) {
-}
-
-@Serdeable
-public record ContextMove(
-        String sourceRelative,
-        String destinationRelative,
-        String fileName,
-        long sizeBytes,
-        String modifiedAt,
-        Category category,
-        boolean conflict
-) {
-}
-
-@Serdeable
-public record ContextMoveResult(
-        String sourceRelative,
-        String destinationRelative,
-        boolean moved,
-        String error
-) {
 }
