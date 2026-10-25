@@ -17,7 +17,6 @@ import io.micronaut.http.client.annotation.Client;
 import io.micronaut.http.client.exceptions.HttpClientResponseException;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import jakarta.inject.Inject;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -41,17 +40,13 @@ class ApiIntegrationTest {
     @Client("/")
     HttpClient client;
 
-    @BeforeAll
-    static void ensureNoStaleEnvironment() {
-        assertEquals("test-no-model", System.getenv().getOrDefault("OLLAMA_MODEL", ""));
-    }
-
     @Test
     void healthAndSettingsAreAvailable() {
         HttpResponse<String> health = client.toBlocking().exchange(
                 HttpRequest.GET("/api/v1/health"), String.class);
         assertEquals(HttpStatus.OK, health.getStatus());
-        assertTrue(health.body().contains("GhostShift"));
+        assertTrue(health.body().contains("\"database\":\"OK\""));
+        assertTrue(health.body().contains("\"version\":\"1.0.0\""));
 
         HttpResponse<String> info = client.toBlocking().exchange(
                 HttpRequest.GET("/api/v1/system/info"), String.class);

@@ -37,8 +37,8 @@ ghostshift:
   max-scan-files: 1000
   max-log-bytes: 2097152
   ai:
-    endpoint: ${OLLAMA_ENDPOINT:http://localhost:11434}
-    model: ${OLLAMA_MODEL:gemma2:2b}
+    endpoint: ${OLLAMA_ENDPOINT:}
+    model: ${OLLAMA_MODEL:}
     timeout-seconds: 120
     max-input-chars: 12000
   api-token: ${GHOSTSHIFT_API_TOKEN:}

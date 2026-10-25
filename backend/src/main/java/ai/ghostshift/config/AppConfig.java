@@ -40,8 +40,10 @@ public class AppConfig {
         this.maxScanDepth = Math.clamp(maxScanDepth, 1, 10);
         this.maxScanFiles = Math.clamp(maxScanFiles, 10, 10_000);
         this.maxLogBytes = Math.clamp(maxLogBytes, 64 * 1024, 32 * 1024 * 1024);
-        this.defaultAiEndpoint = defaultAiEndpoint == null ? "http://localhost:11434" : defaultAiEndpoint.strip();
-        this.defaultAiModel = defaultAiModel == null ? "gemma2:2b" : defaultAiModel.strip();
+        this.defaultAiEndpoint = defaultAiEndpoint == null || defaultAiEndpoint.isBlank()
+                ? "http://localhost:11434" : defaultAiEndpoint.strip();
+        this.defaultAiModel = defaultAiModel == null || defaultAiModel.isBlank()
+                ? "gemma2:2b" : defaultAiModel.strip();
         this.aiTimeoutSeconds = Math.clamp(aiTimeoutSeconds, 5, 600);
         this.aiMaxInputChars = Math.clamp(aiMaxInputChars, 500, 200_000);
         this.apiToken = apiToken == null ? "" : apiToken.strip();
