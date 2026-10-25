@@ -77,15 +77,18 @@ public class ApprovalService {
             throw ApiException.conflict("The run is no longer waiting for approval.");
         }
         if (action != null) {
-            if ("FILE_MOVE".equals(approval.kind())) {
-                runs.markActionStarted(action.id());
-            } else {
+            if ("REQUEST_USER_APPROVAL".equals(action.actionType())) {
                 runs.updateAction(action.id(), "SUCCEEDED",
                         Map.of("approved", true, "approvalId", approvalId),
                         null, null, Text.now());
+            } else {
+                runs.markActionStarted(action.id());
             }
         }
-        WorkflowContext context = executor.loadContext(run.id()).withExplicitApproval(true);
+        WorkflowContext context = executor.loadContext(run.id());
+        if ("FILE_MOVE".equals(approval.kind()) || "EXPLICIT".equals(approval.kind())) {
+            context = context.withExplicitApproval(true);
+        }
         runs.saveContext(run.id(), json.write(context));
         runs.addEvent(run.id(), "INFO", "Approval granted: " + approval.title() + "." + suffix,
                 Map.of("approvalId", approvalId, "kind", approval.kind()));

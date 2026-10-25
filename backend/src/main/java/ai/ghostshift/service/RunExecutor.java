@@ -1054,6 +1054,17 @@ public class RunExecutor {
         return value instanceof String text && !text.isBlank() ? text : fallback;
     }
 
+    private static String logTarget(WorkflowContext context) {
+        if (context.textRelativePath() != null && !context.textRelativePath().isBlank()) {
+            return "`" + context.textRelativePath() + "`";
+        }
+        return context.selectedFiles().stream()
+                .filter(file -> ".log".equalsIgnoreCase(file.extension()))
+                .map(file -> "`" + file.relativePath() + "`")
+                .findFirst()
+                .orElse("the selected log");
+    }
+
     private static List<String> stringList(Object value) {
         if (!(value instanceof List<?> list)) {
             return List.of();
