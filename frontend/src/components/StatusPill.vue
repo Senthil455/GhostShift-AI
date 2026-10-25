@@ -65,21 +65,22 @@ const text = computed(() => props.label ?? humanStatus(props.status))
 .pill {
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
-  padding: 0.24rem 0.55rem;
-  border-radius: 999px;
+  gap: 0.38rem;
+  padding: 0.2rem 0.45rem;
+  border-radius: 0;
   border: 1px solid transparent;
-  font-family: var(--font-mono);
-  font-size: 0.66rem;
-  letter-spacing: 0.04em;
+  font-family: var(--font-sans);
+  font-size: 0.7rem;
+  font-weight: 650;
+  letter-spacing: -0.005em;
   line-height: 1.2;
-  text-transform: uppercase;
+  text-transform: none;
   white-space: nowrap;
 }
 .pill__dot {
   width: 5px;
   height: 5px;
-  border-radius: 50%;
+  border-radius: 0;
   background: currentColor;
 }
 .pill--success {

@@ -26,27 +26,31 @@ withDefaults(defineProps<{ icon?: string; title: string; description?: string; c
   grid-template-columns: auto 1fr;
   gap: 0.9rem 1rem;
   align-items: start;
-  padding: 2rem 1.5rem;
-  border: 1px dashed var(--line-strong);
-  border-radius: var(--radius);
-  background: color-mix(in srgb, var(--surface) 60%, transparent);
+  padding: 1.5rem 1.4rem;
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--line-strong);
+  border-radius: 0;
+  background: var(--surface-2);
+  box-shadow: 4px 4px 0 var(--shadow-color);
 }
 .empty--compact {
-  padding: 1.2rem;
+  padding: 1.1rem;
 }
 .empty__icon {
   display: grid;
   place-items: center;
-  width: 2.4rem;
-  height: 2.4rem;
-  border-radius: 50%;
-  border: 1px solid var(--line);
-  color: var(--accent);
+  width: 2.3rem;
+  height: 2.3rem;
+  border-radius: 0;
+  border: 1px solid var(--line-strong);
+  color: var(--signal);
 }
 .empty h3 {
   margin: 0;
-  font-size: 0.95rem;
+  font-family: var(--font-display);
+  font-size: 1.08rem;
   font-weight: 600;
+  letter-spacing: -0.025em;
 }
 .empty p {
   margin: 0.35rem 0 0;

@@ -61,7 +61,10 @@ async function submit() {
   <article class="approval-card">
     <header class="approval-card__head">
       <div class="approval-card__title">
-        <span class="eyebrow">{{ approval.kind.replaceAll('_', ' ') }}</span>
+        <span class="approval-card__kind">
+          <i />
+          {{ approval.kind.replaceAll('_', ' ').toLowerCase() }}
+        </span>
         <h2>{{ approval.title }}</h2>
         <p class="approval-card__workflow">
           {{ approval.workflowName }}
@@ -144,9 +147,11 @@ async function submit() {
 <style scoped>
 .approval-card {
   border: 1px solid var(--line);
-  border-radius: var(--radius);
-  background: color-mix(in srgb, var(--surface) 90%, transparent);
+  border-left: 3px solid var(--line-strong);
+  border-radius: 0;
+  background: var(--surface);
   padding: 1.15rem 1.2rem;
+  box-shadow: 4px 4px 0 var(--shadow-color);
 }
 .approval-card__head {
   display: flex;
@@ -154,17 +159,31 @@ async function submit() {
   justify-content: space-between;
   gap: 1rem;
 }
+.approval-card__kind {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--text-faint);
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  font-weight: 650;
+}
+.approval-card__kind i {
+  width: 0.38rem;
+  height: 0.38rem;
+  background: var(--signal);
+}
 .approval-card__title h2 {
-  margin: 0.3rem 0 0;
+  margin: 0.35rem 0 0;
   font-family: var(--font-display);
-  font-size: 1.25rem;
-  font-weight: 470;
-  letter-spacing: -0.015em;
+  font-size: 1.35rem;
+  font-weight: 600;
+  letter-spacing: -0.03em;
 }
 .approval-card__workflow {
   margin: 0.35rem 0 0;
-  font-family: var(--font-mono);
-  font-size: 0.65rem;
+  font-family: var(--font-sans);
+  font-size: 0.74rem;
   color: var(--text-muted);
 }
 .approval-card__explanation {
@@ -188,14 +207,15 @@ async function submit() {
   align-items: center;
   gap: 0.7rem;
   color: var(--text-faint);
-  font-size: 0.66rem;
+  font-size: 0.72rem;
 }
 .approval-card__link {
   display: inline-flex;
   align-items: center;
   gap: 0.25rem;
-  font-family: var(--font-mono);
-  font-size: 0.64rem;
+  font-family: var(--font-sans);
+  font-size: 0.74rem;
+  font-weight: 650;
   color: var(--accent);
 }
 .approval-card__error {

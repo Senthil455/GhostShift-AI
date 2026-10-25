@@ -68,9 +68,11 @@ onBeforeUnmount(() => {
   width: 3.1rem;
   height: 3.1rem;
   margin-bottom: 0.7rem;
-  border: 1px solid color-mix(in srgb, var(--accent) 40%, var(--line));
-  border-radius: 12px;
-  background: color-mix(in srgb, var(--accent) 7%, transparent);
+  border: 1px solid var(--line-strong);
+  border-radius: 0;
+  background: var(--surface-2);
+  box-shadow: 4px 4px 0 var(--accent);
+  clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 0 100%);
   overflow: hidden;
   animation: boot-mark 1.1s var(--ease) both;
 }

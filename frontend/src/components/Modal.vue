@@ -68,8 +68,7 @@ onBeforeUnmount(() => {
   display: grid;
   place-items: center;
   padding: 1.2rem;
-  background: color-mix(in srgb, var(--ink) 75%, transparent);
-  backdrop-filter: blur(8px);
+  background: rgb(0 0 0 / 0.68);
 }
 .modal {
   width: min(560px, 100%);
@@ -77,8 +76,8 @@ onBeforeUnmount(() => {
   overflow: auto;
   background: var(--surface);
   border: 1px solid var(--line-strong);
-  border-radius: var(--radius-lg);
-  box-shadow: 0 30px 80px rgb(0 0 0 / 0.35);
+  border-radius: 0;
+  box-shadow: 8px 8px 0 var(--accent);
 }
 .modal--wide {
   width: min(900px, 100%);
@@ -94,9 +93,9 @@ onBeforeUnmount(() => {
 .modal__title {
   margin: 0;
   font-family: var(--font-display);
-  font-size: 1.6rem;
-  font-weight: 460;
-  letter-spacing: -0.02em;
+  font-size: 1.7rem;
+  font-weight: 600;
+  letter-spacing: -0.035em;
 }
 .modal__sub {
   margin: 0.4rem 0 0;

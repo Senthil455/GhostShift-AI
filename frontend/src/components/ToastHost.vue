@@ -43,10 +43,10 @@ const toast = useToastStore()
   gap: 0.7rem;
   background: var(--surface-2);
   border: 1px solid var(--line-strong);
-  border-left: 2px solid var(--text-muted);
-  border-radius: var(--radius);
+  border-left: 3px solid var(--text-muted);
+  border-radius: 0;
   padding: 0.8rem 0.9rem;
-  box-shadow: 0 16px 40px rgb(0 0 0 / 0.28);
+  box-shadow: 5px 5px 0 var(--shadow-color);
 }
 .toast--success {
   border-left-color: var(--ok);
