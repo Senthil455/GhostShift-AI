@@ -1,39 +1,18 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
+import { navSections } from '@/lib/modules'
 import { useSessionStore } from '@/stores/session'
 import Icon from './Icon.vue'
+import ShiftMark from './ShiftMark.vue'
 
 const route = useRoute()
 const session = useSessionStore()
 const sidebarOpen = ref(false)
+const menuButton = ref<HTMLButtonElement | null>(null)
+const closeButton = ref<HTMLButtonElement | null>(null)
 
-const sections = [
-  {
-    label: 'Studio',
-    items: [
-      { to: '/overview', label: 'Overview', icon: 'grid' },
-      { to: '/sort', label: 'GhostSort', icon: 'sort' },
-      { to: '/dev', label: 'GhostDev', icon: 'bug' },
-      { to: '/capture', label: 'GhostCapture', icon: 'record' },
-      { to: '/replay', label: 'GhostReplay', icon: 'play' },
-    ],
-  },
-  {
-    label: 'Intelligence',
-    items: [
-      { to: '/brain', label: 'GhostBrain', icon: 'brain' },
-      { to: '/pulse', label: 'GhostPulse', icon: 'pulse' },
-      { to: '/approvals', label: 'Approvals', icon: 'shield', badge: true },
-      { to: '/history', label: 'History', icon: 'clock' },
-    ],
-  },
-  {
-    label: 'System',
-    items: [{ to: '/settings', label: 'Settings', icon: 'settings' }],
-  },
-]
-
+const sections = navSections
 const title = computed(() => (typeof route.meta.title === 'string' ? route.meta.title : 'GhostShift AI'))
 const group = computed(() => (typeof route.meta.group === 'string' ? route.meta.group : 'Local workspace'))
 const pending = computed(() => session.pendingApprovals.length)
@@ -58,12 +37,39 @@ function toggleTheme() {
   void session.setTheme(session.theme === 'dark' ? 'light' : 'dark')
 }
 
+function closeNav() {
+  sidebarOpen.value = false
+}
+
+function onKeydown(event: KeyboardEvent) {
+  if (event.key === 'Escape' && sidebarOpen.value) closeNav()
+}
+
 watch(
   () => route.fullPath,
   () => {
     sidebarOpen.value = false
   },
 )
+
+watch(sidebarOpen, async (open) => {
+  document.body.classList.toggle('nav-open', open)
+  if (open) {
+    await nextTick()
+    closeButton.value?.focus()
+  } else {
+    menuButton.value?.focus()
+  }
+})
+
+onMounted(() => {
+  document.addEventListener('keydown', onKeydown)
+})
+
+onBeforeUnmount(() => {
+  document.removeEventListener('keydown', onKeydown)
+  document.body.classList.remove('nav-open')
+})
 </script>
 
 <template>
@@ -75,17 +81,27 @@ watch(
       class="scrim"
       type="button"
       aria-label="Close navigation"
-      @click="sidebarOpen = false"
+      @click="closeNav"
     />
 
     <aside id="app-sidebar" class="sidebar" :class="{ 'sidebar--open': sidebarOpen }">
-      <div class="brand">
-        <span class="brand__mark" aria-hidden="true"><i /><i /><b /></span>
-        <div class="brand__copy">
+      <button
+        ref="closeButton"
+        class="icon-btn sidebar__close"
+        type="button"
+        aria-label="Close navigation"
+        @click="closeNav"
+      >
+        <Icon name="x" :size="18" />
+      </button>
+
+      <RouterLink to="/overview" class="brand" aria-label="GhostShift AI overview">
+        <ShiftMark />
+        <span class="brand__copy">
           <span class="brand__name">GhostShift<span>AI</span></span>
           <span class="brand__sub">Local automation studio</span>
-        </div>
-      </div>
+        </span>
+      </RouterLink>
 
       <nav class="nav" aria-label="Primary">
         <div v-for="section in sections" :key="section.label" class="nav__section">
@@ -98,9 +114,14 @@ watch(
             :class="{ 'nav__link--active': isActive(item.to) }"
             :aria-current="isActive(item.to) ? 'page' : undefined"
           >
-            <Icon :name="item.icon" :size="17" />
-            <span>{{ item.label }}</span>
-            <span v-if="item.badge && pending > 0" class="nav__badge" aria-label="pending approvals">{{ pending }}</span>
+            <span class="nav__no" aria-hidden="true">{{ item.order }}</span>
+            <span class="nav__icon"><Icon :name="item.icon" :size="16" /></span>
+            <span class="nav__name">{{ item.label }}</span>
+            <span
+              v-if="item.to === '/approvals' && pending > 0"
+              class="nav__badge"
+              aria-hidden="true"
+            >{{ pending }}</span>
           </RouterLink>
         </div>
       </nav>
@@ -108,15 +129,15 @@ watch(
       <div class="sidebar__foot">
         <RouterLink to="/brain" class="ai-card" :class="`ai-card--${aiTone}`">
           <span class="ai-card__dot" />
-          <div>
+          <span class="ai-card__copy">
             <span class="ai-card__label">GhostBrain</span>
             <span class="ai-card__value">{{ aiLabel }}</span>
-          </div>
+          </span>
           <Icon name="chevron" :size="14" />
         </RouterLink>
         <div class="sidebar__meta">
-          <span class="mono">v{{ session.system?.version ?? '1.0.0' }}</span>
-          <span>·</span>
+          <span>v{{ session.system?.version ?? '1.0.0' }}</span>
+          <span aria-hidden="true">·</span>
           <span>{{ session.system?.bind ?? 'local only' }}</span>
         </div>
       </div>
@@ -125,6 +146,7 @@ watch(
     <div class="shell__body">
       <header class="topbar">
         <button
+          ref="menuButton"
           class="icon-btn topbar__menu"
           type="button"
           aria-label="Open navigation"
@@ -173,6 +195,7 @@ watch(
 <style scoped>
 .shell {
   position: relative;
+  z-index: 1;
   min-height: 100vh;
   display: grid;
   grid-template-columns: var(--sidebar) minmax(0, 1fr);
@@ -185,17 +208,16 @@ watch(
   left: 0.7rem;
   z-index: 200;
   transform: translateY(-160%);
-  padding: 0.6rem 0.9rem;
-  background: var(--accent);
-  color: var(--accent-ink);
-  border-radius: var(--radius-sm);
-  font-weight: 600;
-  font-size: 0.8rem;
+  padding: 0.65rem 0.9rem;
+  background: var(--signal);
+  color: var(--signal-ink);
+  font-size: 0.82rem;
+  font-weight: 700;
   transition: transform 160ms var(--ease);
 }
 .skip-link:focus {
   transform: translateY(0);
-  color: var(--accent-ink);
+  color: var(--signal-ink);
 }
 
 .sidebar {
@@ -205,59 +227,26 @@ watch(
   height: 100vh;
   display: flex;
   flex-direction: column;
-  gap: 1.6rem;
-  padding: 1.25rem 0.9rem 1rem;
+  gap: 1.1rem;
+  padding: 1.15rem 0.8rem 1rem;
   border-right: 1px solid var(--line);
-  background:
-    linear-gradient(180deg, color-mix(in srgb, var(--surface) 92%, transparent), var(--ink) 92%),
-    var(--ink);
+  background: var(--surface);
+}
+
+.sidebar__close {
+  display: none;
 }
 
 .brand {
   display: flex;
   align-items: center;
-  gap: 0.7rem;
-  padding: 0.35rem 0.55rem 0.9rem;
-  border-bottom: 1px solid var(--line);
+  gap: 0.75rem;
+  padding: 0.35rem 0.45rem 1.2rem;
+  color: var(--text);
 }
-
-.brand__mark {
-  position: relative;
-  display: inline-block;
-  width: 2rem;
-  height: 2rem;
-  border: 1px solid color-mix(in srgb, var(--accent) 45%, var(--line));
-  border-radius: 7px;
-  background: color-mix(in srgb, var(--accent) 7%, transparent);
-  overflow: hidden;
-  flex: none;
+.brand:hover {
+  color: var(--text);
 }
-.brand__mark i {
-  position: absolute;
-  width: 1px;
-  height: 1.6rem;
-  top: 0.2rem;
-  background: var(--accent);
-  transform: rotate(18deg);
-  opacity: 0.75;
-}
-.brand__mark i:first-child {
-  left: 0.68rem;
-}
-.brand__mark i:nth-child(2) {
-  left: 1.08rem;
-  opacity: 0.4;
-}
-.brand__mark b {
-  position: absolute;
-  right: 0.34rem;
-  bottom: 0.36rem;
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: var(--accent-strong);
-}
-
 .brand__copy {
   display: flex;
   flex-direction: column;
@@ -265,167 +254,176 @@ watch(
 }
 .brand__name {
   font-family: var(--font-display);
-  font-size: 1.16rem;
-  font-weight: 500;
-  letter-spacing: -0.015em;
-  line-height: 1.1;
+  font-size: 1.26rem;
+  font-weight: 600;
+  letter-spacing: -0.045em;
+  line-height: 1;
 }
 .brand__name span {
-  color: var(--accent);
-  margin-left: 0.22rem;
+  margin-left: 0.18rem;
+  color: var(--signal);
 }
 .brand__sub {
-  font-family: var(--font-mono);
-  font-size: 0.58rem;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  margin-top: 0.25rem;
   color: var(--text-faint);
-  margin-top: 0.2rem;
+  font-size: 0.68rem;
+  line-height: 1.2;
 }
 
 .nav {
   flex: 1;
   overflow-y: auto;
-  padding: 0 0.15rem;
+  padding: 0 0.05rem;
   scrollbar-width: thin;
   scrollbar-color: var(--line-strong) transparent;
 }
 .nav__section + .nav__section {
-  margin-top: 1.15rem;
+  margin-top: 1.35rem;
 }
 .nav__label {
   margin: 0 0 0.35rem;
-  padding: 0 0.6rem;
-  font-family: var(--font-mono);
-  font-size: 0.57rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  padding: 0 0.55rem;
   color: var(--text-faint);
+  font-size: 0.7rem;
+  font-weight: 650;
+  letter-spacing: 0.01em;
 }
 .nav__link {
   position: relative;
-  display: flex;
+  display: grid;
+  grid-template-columns: 1.35rem 1.15rem minmax(0, 1fr) auto;
   align-items: center;
-  gap: 0.65rem;
-  min-height: 2.25rem;
-  padding: 0.4rem 0.6rem;
-  border-radius: var(--radius-sm);
+  gap: 0.42rem;
+  min-height: 2.45rem;
+  padding: 0.38rem 0.55rem;
+  border: 1px solid transparent;
   color: var(--text-muted);
-  font-size: 0.83rem;
-  font-weight: 500;
+  font-size: 0.88rem;
+  font-weight: 600;
+  line-height: 1.15;
   transition:
-    background 140ms ease,
-    color 140ms ease;
+    background 150ms ease,
+    color 150ms ease,
+    border-color 150ms ease,
+    transform 150ms var(--ease),
+    box-shadow 150ms var(--ease);
 }
 .nav__link:hover {
+  border-color: var(--line);
   background: var(--surface-2);
   color: var(--text);
+  transform: translate(-1px, -1px);
 }
-.nav__link--active {
-  background: color-mix(in srgb, var(--accent) 9%, transparent);
-  color: var(--accent-strong);
+.nav__link--active,
+.nav__link--active:hover {
+  border-color: var(--text);
+  background: var(--text);
+  color: var(--ink);
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0 var(--accent);
 }
-.nav__link--active::before {
-  content: '';
-  position: absolute;
-  left: -0.15rem;
-  top: 0.55rem;
-  bottom: 0.55rem;
-  width: 2px;
-  border-radius: 2px;
-  background: var(--accent);
+.nav__no {
+  color: var(--text-faint);
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
 }
-.nav__link .icon {
+.nav__link--active .nav__no {
+  color: color-mix(in srgb, var(--ink) 55%, transparent);
+}
+.nav__icon {
+  display: grid;
+  place-items: center;
   color: currentColor;
   opacity: 0.8;
 }
+.nav__name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 .nav__badge {
-  margin-left: auto;
-  display: inline-grid;
+  display: grid;
   place-items: center;
-  min-width: 1.25rem;
-  height: 1.25rem;
-  padding: 0 0.32rem;
-  border-radius: 999px;
-  background: var(--accent);
-  color: var(--accent-ink);
-  font-family: var(--font-mono);
-  font-size: 0.6rem;
-  font-weight: 500;
+  min-width: 1.3rem;
+  height: 1.3rem;
+  padding: 0 0.28rem;
+  background: var(--signal);
+  color: var(--signal-ink);
+  font-family: var(--font-sans);
+  font-size: 0.66rem;
+  font-weight: 750;
 }
 
 .sidebar__foot {
   display: flex;
   flex-direction: column;
-  gap: 0.7rem;
-  padding-top: 0.8rem;
-  border-top: 1px solid var(--line);
+  gap: 0.75rem;
+  padding-top: 0.9rem;
 }
-
 .ai-card {
-  display: flex;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
   gap: 0.6rem;
-  padding: 0.65rem 0.7rem;
+  padding: 0.7rem 0.68rem;
   border: 1px solid var(--line);
-  border-radius: var(--radius-sm);
-  background: color-mix(in srgb, var(--surface-2) 60%, transparent);
+  background: var(--surface-2);
   color: var(--text-muted);
+  box-shadow: 3px 3px 0 var(--shadow-color);
+  transition:
+    transform 150ms var(--ease),
+    box-shadow 150ms var(--ease),
+    border-color 150ms ease;
 }
 .ai-card:hover {
-  border-color: var(--line-strong);
+  border-color: var(--accent);
   color: var(--text);
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0 color-mix(in srgb, var(--accent) 35%, transparent);
 }
 .ai-card__dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
+  width: 0.42rem;
+  height: 0.42rem;
   background: var(--text-faint);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--text-faint) 12%, transparent);
-  flex: none;
 }
 .ai-card--ok .ai-card__dot {
   background: var(--ok);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ok) 14%, transparent);
 }
 .ai-card--warn .ai-card__dot {
   background: var(--warn);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--warn) 14%, transparent);
 }
-.ai-card div {
+.ai-card__copy {
   display: flex;
   flex-direction: column;
   min-width: 0;
-  flex: 1;
 }
 .ai-card__label {
-  font-family: var(--font-mono);
-  font-size: 0.56rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
   color: var(--text-faint);
+  font-size: 0.68rem;
+  font-weight: 650;
 }
 .ai-card__value {
-  font-size: 0.72rem;
-  color: var(--text-muted);
   overflow: hidden;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 .ai-card .icon {
   color: var(--text-faint);
-  flex: none;
 }
 .sidebar__meta {
   display: flex;
-  gap: 0.35rem;
   align-items: center;
   justify-content: center;
+  gap: 0.38rem;
   color: var(--text-faint);
   font-family: var(--font-mono);
-  font-size: 0.57rem;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  font-size: 0.6rem;
+  font-variant-numeric: tabular-nums;
 }
 
 .shell__body {
@@ -442,11 +440,10 @@ watch(
   display: flex;
   align-items: center;
   gap: 0.85rem;
-  height: 3.75rem;
-  padding: 0 1.6rem;
+  height: 3.9rem;
+  padding: 0 clamp(1rem, 2.4vw, 2.1rem);
   border-bottom: 1px solid var(--line);
-  background: color-mix(in srgb, var(--ink) 86%, transparent);
-  backdrop-filter: blur(14px);
+  background: var(--surface);
 }
 .topbar__menu {
   display: none;
@@ -458,65 +455,67 @@ watch(
   min-width: 0;
 }
 .topbar__title span {
-  font-family: var(--font-mono);
-  font-size: 0.59rem;
-  letter-spacing: 0.11em;
-  text-transform: uppercase;
   color: var(--text-faint);
+  font-size: 0.72rem;
+  font-weight: 600;
 }
 .topbar__title strong {
-  font-weight: 560;
-  font-size: 0.82rem;
+  overflow: hidden;
   color: var(--text);
-  letter-spacing: -0.005em;
+  font-family: var(--font-display);
+  font-size: 1.02rem;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .topbar__actions {
-  margin-left: auto;
   display: flex;
   align-items: center;
   gap: 0.35rem;
+  margin-left: auto;
 }
 .topbar__action {
-  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.35rem;
-  min-width: 2rem;
-  height: 2rem;
+  min-width: 2.2rem;
+  height: 2.2rem;
   padding: 0 0.5rem;
   border: 1px solid transparent;
-  border-radius: var(--radius-sm);
   background: transparent;
   color: var(--text-muted);
-  font-family: var(--font-mono);
-  font-size: 0.66rem;
+  font-family: var(--font-sans);
+  font-size: 0.76rem;
+  font-weight: 650;
+  transition:
+    background 140ms ease,
+    border-color 140ms ease,
+    color 140ms ease;
 }
 .topbar__action:hover {
+  border-color: var(--line);
   background: var(--surface-2);
   color: var(--text);
 }
 .topbar__approvals span {
-  color: var(--accent);
+  color: var(--signal);
 }
 .topbar__local {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  margin-left: 0.4rem;
-  padding-left: 0.7rem;
+  margin-left: 0.35rem;
+  padding-left: 0.8rem;
   border-left: 1px solid var(--line);
-  font-family: var(--font-mono);
-  font-size: 0.58rem;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
   color: var(--text-faint);
+  font-size: 0.7rem;
   white-space: nowrap;
 }
 .topbar__local-dot {
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
+  width: 0.38rem;
+  height: 0.38rem;
   background: var(--ok);
 }
 
@@ -524,16 +523,17 @@ watch(
   display: flex;
   align-items: flex-start;
   gap: 0.55rem;
-  padding: 0.6rem 1.6rem;
-  background: color-mix(in srgb, var(--danger) 8%, var(--surface));
-  border-bottom: 1px solid color-mix(in srgb, var(--danger) 25%, var(--line));
+  padding: 0.7rem clamp(1rem, 2.4vw, 2.1rem);
+  border-bottom: 1px solid color-mix(in srgb, var(--danger) 35%, var(--line));
+  border-left: 3px solid var(--danger);
+  background: color-mix(in srgb, var(--danger) 7%, var(--surface));
   color: var(--text-muted);
-  font-size: 0.78rem;
+  font-size: 0.82rem;
   line-height: 1.45;
 }
 .offline-banner .icon {
-  color: var(--danger);
   margin-top: 0.05rem;
+  color: var(--danger);
 }
 .offline-banner strong {
   color: var(--text);
@@ -541,9 +541,9 @@ watch(
 
 .page {
   width: 100%;
-  max-width: 1420px;
+  max-width: 1560px;
   margin: 0 auto;
-  padding: 2rem 2.2rem 4rem;
+  padding: 2.2rem clamp(1.2rem, 2.8vw, 3.2rem) 5rem;
   flex: 1;
 }
 
@@ -552,8 +552,7 @@ watch(
   inset: 0;
   z-index: 35;
   border: 0;
-  background: rgb(0 0 0 / 0.5);
-  backdrop-filter: blur(2px);
+  background: rgb(0 0 0 / 0.62);
 }
 
 @media (max-width: 1000px) {
@@ -563,22 +562,26 @@ watch(
   .sidebar {
     position: fixed;
     inset: 0 auto 0 0;
-    width: min(286px, 84vw);
+    width: min(310px, 86vw);
     transform: translateX(-102%);
-    transition: transform 220ms var(--ease);
-    box-shadow: 20px 0 60px rgb(0 0 0 / 0.35);
+    transition: transform 240ms var(--ease);
+    box-shadow: 18px 0 0 rgb(0 0 0 / 0.28);
   }
   .sidebar--open {
     transform: translateX(0);
   }
-  .topbar__menu {
+  .sidebar__close {
+    position: absolute;
+    top: 0.85rem;
+    right: 0.85rem;
+    z-index: 1;
     display: inline-grid;
   }
-  .topbar {
-    padding: 0 1rem;
+  .brand {
+    padding-right: 2.6rem;
   }
-  .page {
-    padding: 1.5rem 1.1rem 3rem;
+  .topbar__menu {
+    display: inline-grid;
   }
 }
 
@@ -588,10 +591,16 @@ watch(
     display: none;
   }
   .topbar__title strong {
-    font-size: 0.78rem;
+    font-size: 0.94rem;
   }
   .page {
-    padding: 1.25rem 0.9rem 3rem;
+    padding: 1.35rem 0.95rem 3.5rem;
   }
+}
+</style>
+
+<style>
+body.nav-open {
+  overflow: hidden;
 }
 </style>

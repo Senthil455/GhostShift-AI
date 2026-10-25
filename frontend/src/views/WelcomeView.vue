@@ -5,7 +5,9 @@ import { api } from '@/api/client'
 import { errorMessage } from '@/lib/errors'
 import { useSessionStore } from '@/stores/session'
 import { useToastStore } from '@/stores/toast'
+import GhostLedger from '@/components/GhostLedger.vue'
 import Icon from '@/components/Icon.vue'
+import ShiftMark from '@/components/ShiftMark.vue'
 
 const session = useSessionStore()
 const toast = useToastStore()
@@ -111,100 +113,117 @@ onMounted(() => {
 <template>
   <div class="welcome">
     <header class="welcome__top">
-      <div class="brand">
-        <span class="brand__mark" aria-hidden="true"><i /><i /><b /></span>
-        <div>
+      <RouterLink to="/overview" class="brand" aria-label="GhostShift AI overview">
+        <ShiftMark />
+        <span class="brand__copy">
           <span class="brand__name">GhostShift<span>AI</span></span>
           <span class="brand__sub">Local automation studio</span>
-        </div>
-      </div>
-      <RouterLink v-if="replay" to="/overview" class="btn btn--ghost btn--sm">
-        <Icon name="arrow" :size="14" class="back-icon" />
-        Back to workspace
+        </span>
       </RouterLink>
-      <span v-else class="welcome__local"><span /> Local only · v{{ session.system?.version ?? '1.0.0' }}</span>
+
+      <div class="welcome__top-right">
+        <span class="welcome__local"><i /> Local only · v{{ session.system?.version ?? '1.0.0' }}</span>
+        <RouterLink v-if="replay" to="/overview" class="btn btn--ghost btn--sm">
+          <Icon name="arrow" :size="14" class="back-icon" />
+          Back to workspace
+        </RouterLink>
+      </div>
     </header>
 
     <main class="welcome__main">
       <section class="welcome__hero">
-        <p class="eyebrow">A quieter kind of automation</p>
-        <h1>Your work doesn't need the cloud.</h1>
-        <p class="welcome__lede">
-          GhostShift is a local-first shift desk for files, logs, and repeatable workflows. The model suggests.
-          Deterministic code checks. You decide. The engine executes. Every step leaves a record.
-        </p>
+        <div class="welcome__copy">
+          <h1 class="welcome__title">Your work doesn't need the cloud.</h1>
+          <p class="welcome__lede">
+            GhostShift is a local-first shift desk for the files, logs, and repetitive workflows that pile up after
+            hours. The model suggests. Deterministic code checks. You decide. Every move leaves a receipt.
+          </p>
 
-        <div class="welcome__principles">
-          <div v-for="principle in principles" :key="principle.title" class="principle">
-            <span class="principle__icon"><Icon :name="principle.icon" :size="17" /></span>
-            <div>
-              <strong>{{ principle.title }}</strong>
-              <p>{{ principle.copy }}</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="welcome__start">
-          <div class="welcome__start-copy">
-            <p class="eyebrow">Begin</p>
-            <h2>{{ replay ? 'Return to the shift desk.' : 'Start with a look around.' }}</h2>
-            <p>
-              Create a synthetic demo workspace with example files and three reviewable workflows, or enter the empty
-              workspace and register your own folder.
-            </p>
-            <div class="welcome__ai" :class="`welcome__ai--${aiState.tone}`">
-              <span class="welcome__ai-dot" />
-              <span>GhostBrain · {{ aiState.label }}</span>
-              <RouterLink to="/brain" class="welcome__ai-link">Configure</RouterLink>
-            </div>
-          </div>
           <div class="welcome__actions">
-            <button class="btn btn--primary btn--block" type="button" :disabled="busy !== ''" @click="enter">
+            <button class="btn btn--primary" type="button" :disabled="busy !== ''" @click="enter">
               <span v-if="busy === 'enter'" class="spinner" />
               <Icon v-else name="arrow" :size="15" />
               {{ replay ? 'Return to overview' : 'Enter the workspace' }}
             </button>
-            <button class="btn btn--block" type="button" :disabled="busy !== ''" @click="createDemo">
+            <button class="btn" type="button" :disabled="busy !== ''" @click="createDemo">
               <span v-if="busy === 'demo'" class="spinner" />
               <Icon v-else name="spark" :size="15" />
               Create demo workspace
             </button>
-            <p class="welcome__fine">
-              The demo lives inside GhostShift's own data folder. Every file is synthetic, and nothing is overwritten.
-            </p>
+          </div>
+
+          <div class="welcome__status">
+            <span class="welcome__ai" :class="`welcome__ai--${aiState.tone}`">
+              <i />
+              GhostBrain · {{ aiState.label }}
+            </span>
+            <RouterLink to="/brain" class="welcome__ai-link">Configure model</RouterLink>
+          </div>
+
+          <p v-if="error" class="welcome__error" role="alert">{{ error }}</p>
+
+          <div class="welcome__tape" aria-label="Local guarantees">
+            <span>SQLite on disk</span>
+            <span>Ollama optional</span>
+            <span>No account</span>
+            <span>No hidden uploads</span>
           </div>
         </div>
 
-        <p v-if="error" class="welcome__error" role="alert">{{ error }}</p>
+        <div class="welcome__stage">
+          <GhostLedger mode="hero" :interactive="false" />
+          <div class="welcome__stage-caption">
+            <span>Shift 00 / The archive</span>
+            <span>Six modules · one local machine</span>
+          </div>
+        </div>
       </section>
 
-      <aside class="welcome__steps" aria-label="First steps">
-        <div class="steps-head">
-          <p class="eyebrow">The first shift</p>
-          <span class="mono">Three moves, no surprises</span>
-        </div>
-        <RouterLink v-for="step in steps" :key="step.number" :to="step.to" class="step">
-          <span class="step__number">{{ step.number }}</span>
+      <section class="welcome__principles" aria-label="Operating principles">
+        <div v-for="(principle, index) in principles" :key="principle.title" class="principle">
+          <span class="principle__no">{{ String(index + 1).padStart(2, '0') }}</span>
+          <span class="principle__icon"><Icon :name="principle.icon" :size="18" /></span>
           <div>
-            <h2>{{ step.title }}</h2>
-            <p>{{ step.copy }}</p>
-            <span class="step__link">{{ step.link }} <Icon name="arrow" :size="13" /></span>
+            <strong>{{ principle.title }}</strong>
+            <p>{{ principle.copy }}</p>
           </div>
-        </RouterLink>
+        </div>
+      </section>
 
-        <div class="steps-note">
-          <Icon name="terminal" :size="16" />
+      <section class="welcome__shift" aria-label="First steps">
+        <div class="welcome__shift-head">
+          <p class="eyebrow">The first shift</p>
+          <h2>Three moves, no surprises.</h2>
+          <p>
+            GhostShift starts with what you register, shows every destination, and keeps the full record. Nothing is
+            inferred from silence.
+          </p>
+        </div>
+
+        <div class="welcome__steps">
+          <RouterLink v-for="step in steps" :key="step.number" :to="step.to" class="step">
+            <span class="step__number">{{ step.number }}</span>
+            <div>
+              <h3>{{ step.title }}</h3>
+              <p>{{ step.copy }}</p>
+              <span class="step__link">{{ step.link }} <Icon name="arrow" :size="13" /></span>
+            </div>
+          </RouterLink>
+        </div>
+
+        <div class="welcome__note">
+          <Icon name="terminal" :size="18" />
           <p>
             GhostShift never runs arbitrary shell commands. Workflow actions come from a closed registry with explicit
             permissions.
           </p>
         </div>
-      </aside>
+      </section>
     </main>
 
     <footer class="welcome__foot">
       <span>GhostShift AI · an independent local-first project</span>
-      <span class="mono">No deletes · no silent overwrites · no hidden uploads</span>
+      <span>No deletes · no silent overwrites · no hidden uploads</span>
     </footer>
   </div>
 </template>
@@ -216,363 +235,405 @@ onMounted(() => {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  padding: 0 clamp(1.2rem, 4vw, 3.5rem);
+  padding: 0 clamp(1.1rem, 3.8vw, 3.4rem);
 }
 .welcome__top {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  padding: 1.5rem 0 1.2rem;
+  padding: 1.35rem 0 1.1rem;
   border-bottom: 1px solid var(--line);
 }
 .brand {
   display: flex;
   align-items: center;
   gap: 0.7rem;
+  color: var(--text);
 }
-.brand__mark {
-  position: relative;
-  display: inline-block;
-  width: 2.1rem;
-  height: 2.1rem;
-  border: 1px solid color-mix(in srgb, var(--accent) 45%, var(--line));
-  border-radius: 8px;
-  background: color-mix(in srgb, var(--accent) 7%, transparent);
-  overflow: hidden;
-  flex: none;
+.brand:hover {
+  color: var(--text);
 }
-.brand__mark i {
-  position: absolute;
-  width: 1px;
-  height: 1.7rem;
-  top: 0.2rem;
-  background: var(--accent);
-  transform: rotate(18deg);
-  opacity: 0.75;
-}
-.brand__mark i:first-child {
-  left: 0.72rem;
-}
-.brand__mark i:nth-child(2) {
-  left: 1.14rem;
-  opacity: 0.4;
-}
-.brand__mark b {
-  position: absolute;
-  right: 0.36rem;
-  bottom: 0.38rem;
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: var(--accent-strong);
+.brand__copy {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
 }
 .brand__name {
-  display: block;
   font-family: var(--font-display);
-  font-size: 1.22rem;
-  font-weight: 500;
-  letter-spacing: -0.015em;
-  line-height: 1.05;
+  font-size: 1.3rem;
+  font-weight: 600;
+  letter-spacing: -0.045em;
+  line-height: 1;
 }
 .brand__name span {
-  color: var(--accent);
-  margin-left: 0.2rem;
+  margin-left: 0.18rem;
+  color: var(--signal);
 }
 .brand__sub {
-  display: block;
-  font-family: var(--font-mono);
-  font-size: 0.56rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  margin-top: 0.25rem;
   color: var(--text-faint);
-  margin-top: 0.18rem;
+  font-size: 0.68rem;
+}
+.welcome__top-right {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
 }
 .welcome__local {
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
-  font-family: var(--font-mono);
-  font-size: 0.6rem;
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
-  color: var(--text-faint);
+  gap: 0.45rem;
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  white-space: nowrap;
 }
-.welcome__local span {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
+.welcome__local i {
+  width: 0.38rem;
+  height: 0.38rem;
   background: var(--ok);
-  box-shadow: 0 0 0 4px color-mix(in srgb, var(--ok) 12%, transparent);
 }
 .back-icon {
   transform: rotate(180deg);
 }
+
 .welcome__main {
-  flex: 1;
-  display: grid;
-  grid-template-columns: minmax(0, 1.45fr) minmax(320px, 1fr);
-  gap: clamp(2rem, 5vw, 5rem);
-  align-items: start;
   width: 100%;
-  max-width: 1280px;
+  max-width: 1540px;
   margin: 0 auto;
-  padding: clamp(2.5rem, 6vh, 5rem) 0 3rem;
+  padding: clamp(2rem, 4.8vw, 5.4rem) 0 0;
 }
-.welcome__hero h1 {
-  margin: 0.7rem 0 0;
+.welcome__hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.02fr) minmax(0, 0.98fr);
+  align-items: center;
+  gap: clamp(1.5rem, 4vw, 4rem);
+}
+.welcome__copy {
+  max-width: 48rem;
+  animation: welcome-rise 640ms var(--ease) both;
+}
+.welcome__title {
+  max-width: 11.5ch;
+  margin: 0;
+  color: var(--text);
   font-family: var(--font-display);
-  font-size: clamp(2.6rem, 5.4vw, 5.1rem);
-  font-weight: 390;
-  line-height: 0.98;
-  letter-spacing: -0.04em;
-  max-width: 13ch;
-  text-wrap: balance;
+  font-size: clamp(3.2rem, 6.7vw, 7.4rem);
+  font-weight: 600;
+  letter-spacing: -0.07em;
+  line-height: 0.86;
 }
 .welcome__lede {
-  margin: 1.5rem 0 0;
-  max-width: 56ch;
+  max-width: 54ch;
+  margin: 1.3rem 0 0;
   color: var(--text-muted);
-  font-size: 0.98rem;
-  line-height: 1.7;
+  font-size: clamp(0.98rem, 1.2vw, 1.08rem);
+  line-height: 1.58;
 }
-.welcome__principles {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 1rem;
-  margin-top: 2.2rem;
-  padding-top: 1.4rem;
-  border-top: 1px solid var(--line);
-}
-.principle {
+.welcome__actions {
   display: flex;
-  gap: 0.55rem;
-  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  margin-top: 1.6rem;
 }
-.principle__icon {
-  display: grid;
-  place-items: center;
-  width: 1.9rem;
-  height: 1.9rem;
-  border: 1px solid var(--line);
-  border-radius: 50%;
-  color: var(--accent);
-  flex: none;
-}
-.principle strong {
-  display: block;
-  font-size: 0.78rem;
-  font-weight: 600;
-}
-.principle p {
-  margin: 0.25rem 0 0;
-  color: var(--text-muted);
-  font-size: 0.72rem;
-  line-height: 1.5;
-}
-.welcome__start {
-  display: grid;
-  grid-template-columns: minmax(0, 1.2fr) minmax(220px, 0.8fr);
-  gap: 1.6rem;
-  margin-top: 2.6rem;
-  padding: 1.5rem;
-  border: 1px solid color-mix(in srgb, var(--accent) 22%, var(--line));
-  border-radius: var(--radius-lg);
-  background:
-    linear-gradient(135deg, color-mix(in srgb, var(--accent) 7%, transparent), transparent 55%),
-    color-mix(in srgb, var(--surface) 92%, transparent);
-}
-.welcome__start-copy h2 {
-  margin: 0.4rem 0 0;
-  font-family: var(--font-display);
-  font-size: clamp(1.45rem, 2.5vw, 2rem);
-  font-weight: 440;
-  letter-spacing: -0.025em;
-}
-.welcome__start-copy > p:not(.eyebrow) {
-  margin: 0.6rem 0 0;
-  color: var(--text-muted);
-  font-size: 0.8rem;
-  line-height: 1.6;
-  max-width: 48ch;
+.welcome__status {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.8rem;
+  margin-top: 1rem;
 }
 .welcome__ai {
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
-  margin-top: 0.9rem;
-  padding: 0.3rem 0.55rem;
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  font-family: var(--font-mono);
-  font-size: 0.6rem;
-  color: var(--text-faint);
+  gap: 0.45rem;
+  color: var(--text-muted);
+  font-size: 0.76rem;
 }
-.welcome__ai-dot {
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
+.welcome__ai i {
+  width: 0.4rem;
+  height: 0.4rem;
   background: var(--text-faint);
 }
-.welcome__ai--ok {
-  color: var(--ok);
-  border-color: color-mix(in srgb, var(--ok) 28%, var(--line));
-}
-.welcome__ai--ok .welcome__ai-dot {
+.welcome__ai--ok i {
   background: var(--ok);
 }
-.welcome__ai--warn {
-  color: var(--warn);
-  border-color: color-mix(in srgb, var(--warn) 28%, var(--line));
-}
-.welcome__ai--warn .welcome__ai-dot {
+.welcome__ai--warn i {
   background: var(--warn);
 }
 .welcome__ai-link {
-  margin-left: 0.2rem;
   color: var(--accent);
-  font-size: 0.6rem;
-}
-.welcome__actions {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 0.55rem;
-}
-.welcome__fine {
-  margin: 0.2rem 0 0;
-  color: var(--text-faint);
-  font-size: 0.65rem;
-  line-height: 1.5;
+  font-size: 0.76rem;
+  font-weight: 650;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
 }
 .welcome__error {
   margin: 1rem 0 0;
-  padding: 0.65rem 0.8rem;
-  border-left: 2px solid var(--danger);
-  border-radius: var(--radius-sm);
-  background: color-mix(in srgb, var(--danger) 7%, transparent);
+  padding: 0.7rem 0.85rem;
+  border-left: 3px solid var(--danger);
+  background: color-mix(in srgb, var(--danger) 8%, var(--surface));
   color: var(--danger);
-  font-size: 0.78rem;
+  font-size: 0.82rem;
 }
-.welcome__steps {
-  position: relative;
-  padding-left: 1.6rem;
-  border-left: 1px solid var(--line);
-}
-.steps-head {
+.welcome__tape {
   display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 0.8rem;
-  margin-bottom: 0.7rem;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-top: 2rem;
 }
-.steps-head .mono {
+.welcome__tape span {
+  padding: 0.3rem 0.48rem;
+  border: 1px solid var(--line);
   color: var(--text-faint);
-  font-size: 0.58rem;
-}
-.step {
-  display: flex;
-  gap: 0.85rem;
-  padding: 1.05rem 0.4rem;
-  border-bottom: 1px solid var(--line);
-  color: var(--text);
-}
-.step:hover {
-  color: var(--text);
-}
-.step__number {
-  font-family: var(--font-mono);
-  font-size: 0.62rem;
-  color: var(--accent);
-  padding-top: 0.15rem;
-}
-.step h2 {
-  margin: 0;
-  font-size: 0.88rem;
+  font-size: 0.68rem;
   font-weight: 600;
 }
-.step p {
-  margin: 0.3rem 0 0;
+.welcome__stage {
+  min-width: 0;
+  animation: welcome-rise 760ms 90ms var(--ease) both;
+}
+.welcome__stage-caption {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 0.65rem;
+  color: var(--text-faint);
+  font-size: 0.7rem;
+}
+
+.welcome__principles {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0;
+  margin-top: clamp(2.2rem, 5vw, 4.8rem);
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+.principle {
+  display: grid;
+  grid-template-columns: auto auto minmax(0, 1fr);
+  gap: 0.7rem;
+  padding: 1.35rem 1.3rem 1.45rem 0;
+}
+.principle + .principle {
+  padding-left: 1.3rem;
+  border-left: 1px solid var(--line);
+}
+.principle__no {
+  color: var(--text-faint);
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  padding-top: 0.22rem;
+}
+.principle__icon {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid var(--line-strong);
+  color: var(--signal);
+}
+.principle strong {
+  display: block;
+  color: var(--text);
+  font-family: var(--font-display);
+  font-size: 1.06rem;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+}
+.principle p {
+  max-width: 38ch;
+  margin: 0.35rem 0 0;
   color: var(--text-muted);
-  font-size: 0.74rem;
+  font-size: 0.78rem;
+  line-height: 1.5;
+}
+
+.welcome__shift {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.6fr);
+  gap: clamp(1.4rem, 3.5vw, 3.5rem);
+  margin-top: clamp(2.4rem, 5vw, 5rem);
+  align-items: start;
+}
+.welcome__shift-head h2 {
+  max-width: 12ch;
+  margin: 0.55rem 0 0;
+  color: var(--text);
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 3.3vw, 3.5rem);
+  font-weight: 600;
+  letter-spacing: -0.055em;
+  line-height: 0.93;
+}
+.welcome__shift-head > p:last-child {
+  max-width: 44ch;
+  margin: 0.85rem 0 0;
+  color: var(--text-muted);
+  font-size: 0.86rem;
   line-height: 1.55;
+}
+.welcome__steps {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+.step {
+  display: block;
+  padding: 0.95rem 0 0;
+  border-top: 3px solid var(--line-strong);
+  color: var(--text);
+  transition:
+    border-color 160ms ease,
+    transform 180ms var(--ease);
+}
+.step:hover {
+  border-color: var(--signal);
+  color: var(--text);
+  transform: translateY(-3px);
+}
+.step__number {
+  display: block;
+  color: var(--accent);
+  font-family: var(--font-display);
+  font-size: 2.3rem;
+  font-weight: 600;
+  letter-spacing: -0.06em;
+  line-height: 0.9;
+}
+.step h3 {
+  margin: 0.8rem 0 0;
+  color: var(--text);
+  font-family: var(--font-display);
+  font-size: 1.12rem;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+}
+.step p {
+  margin: 0.4rem 0 0;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  line-height: 1.5;
 }
 .step__link {
   display: inline-flex;
   align-items: center;
-  gap: 0.25rem;
-  margin-top: 0.45rem;
-  font-family: var(--font-mono);
-  font-size: 0.62rem;
+  gap: 0.3rem;
+  margin-top: 0.85rem;
   color: var(--accent);
+  font-size: 0.74rem;
+  font-weight: 650;
 }
-.step:hover .step__link {
-  color: var(--accent-strong);
-}
-.steps-note {
+.welcome__note {
   display: flex;
-  gap: 0.55rem;
-  margin-top: 1.1rem;
-  padding: 0.8rem;
+  align-items: flex-start;
+  gap: 0.65rem;
+  grid-column: 2;
+  margin-top: 1rem;
+  padding: 0.9rem 1rem;
   border: 1px solid var(--line);
-  border-radius: var(--radius-sm);
-  background: color-mix(in srgb, var(--surface-2) 45%, transparent);
-  color: var(--text-faint);
-}
-.steps-note .icon {
+  background: var(--surface-2);
+  box-shadow: 4px 4px 0 var(--shadow-color);
   color: var(--text-muted);
-  margin-top: 0.05rem;
 }
-.steps-note p {
+.welcome__note .icon {
+  margin-top: 0.08rem;
+  color: var(--signal);
+}
+.welcome__note p {
+  max-width: 68ch;
   margin: 0;
-  font-size: 0.69rem;
+  font-size: 0.78rem;
   line-height: 1.5;
 }
+
 .welcome__foot {
   display: flex;
-  align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  flex-wrap: wrap;
+  width: 100%;
+  max-width: 1540px;
+  margin: clamp(2.5rem, 6vw, 5.5rem) auto 0;
   padding: 1rem 0 1.4rem;
   border-top: 1px solid var(--line);
   color: var(--text-faint);
-  font-size: 0.64rem;
-}
-.welcome__foot .mono {
-  font-size: 0.58rem;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  font-size: 0.7rem;
 }
 
-@media (max-width: 1050px) {
-  .welcome__main {
-    grid-template-columns: 1fr;
-    gap: 2.4rem;
-    padding-top: 2.5rem;
+@keyframes welcome-rise {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
   }
-  .welcome__hero h1 {
-    max-width: 17ch;
-  }
-  .welcome__steps {
-    padding-left: 0;
-    border-left: 0;
-    border-top: 1px solid var(--line);
+  to {
+    opacity: 1;
+    transform: none;
   }
 }
-@media (max-width: 720px) {
+
+@media (max-width: 1120px) {
+  .welcome__hero {
+    grid-template-columns: 1fr;
+  }
+  .welcome__copy {
+    max-width: 62rem;
+  }
+  .welcome__title {
+    max-width: 12ch;
+    font-size: clamp(3.2rem, 8vw, 6rem);
+  }
+  .welcome__stage {
+    max-width: 52rem;
+  }
+}
+@media (max-width: 900px) {
   .welcome__principles {
     grid-template-columns: 1fr;
   }
-  .welcome__start {
+  .principle {
+    grid-template-columns: auto auto minmax(0, 1fr);
+    padding: 1.1rem 0;
+  }
+  .principle + .principle {
+    padding-left: 0;
+    border-top: 1px solid var(--line);
+    border-left: 0;
+  }
+  .welcome__shift {
     grid-template-columns: 1fr;
   }
-  .welcome__actions {
-    padding-top: 0.3rem;
+  .welcome__steps {
+    grid-template-columns: 1fr;
+  }
+  .welcome__note {
+    grid-column: 1;
+  }
+}
+@media (max-width: 620px) {
+  .welcome__top-right .welcome__local {
+    display: none;
+  }
+  .welcome__title {
+    max-width: 10ch;
+    font-size: clamp(2.85rem, 13vw, 4.5rem);
+  }
+  .welcome__actions .btn {
+    width: 100%;
+  }
+  .welcome__stage-caption {
+    flex-direction: column;
+    gap: 0.25rem;
   }
   .welcome__foot {
     flex-direction: column;
-    align-items: flex-start;
+    gap: 0.35rem;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .welcome__copy,
+  .welcome__stage {
+    animation: none;
   }
 }
 </style>
