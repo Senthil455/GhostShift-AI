@@ -1070,8 +1070,8 @@ onMounted(async () => {
   margin: 0.55rem 0 0;
   font-family: var(--font-display);
   font-size: clamp(1.5rem, 2.4vw, 1.9rem);
-  font-weight: 460;
-  letter-spacing: -0.025em;
+  font-weight: 600;
+  letter-spacing: -0.04em;
   line-height: 1.1;
 }
 .workflow-head__desc {

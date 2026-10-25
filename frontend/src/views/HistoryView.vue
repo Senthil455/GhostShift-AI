@@ -693,8 +693,8 @@ onMounted(async () => {
   place-items: center;
   width: 1.75rem;
   height: 1.75rem;
-  border: 1px solid var(--line);
-  border-radius: 50%;
+  border: 1px solid var(--line-strong);
+  border-radius: 0;
   color: var(--text-faint);
   flex: none;
   margin-top: 0.05rem;
@@ -763,9 +763,9 @@ onMounted(async () => {
   place-items: center;
   width: 1.8rem;
   height: 1.8rem;
-  border: 1px solid var(--line);
-  border-radius: 50%;
-  color: var(--accent);
+  border: 1px solid var(--line-strong);
+  border-radius: 0;
+  color: var(--signal);
   flex: none;
 }
 .report-row__copy {

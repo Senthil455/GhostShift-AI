@@ -562,27 +562,28 @@ onBeforeUnmount(() => {
 
 <template>
   <div
-    ref="host"
     class="ledger"
     :class="[`ledger--${mode}`, { 'ledger--fallback': fallback, 'ledger--dragging': dragging }]"
   >
-    <canvas ref="canvas" class="ledger__canvas" aria-hidden="true" />
+    <div ref="host" class="ledger__stage">
+      <canvas ref="canvas" class="ledger__canvas" aria-hidden="true" />
 
-    <div v-if="fallback" class="ledger__fallback" aria-hidden="true">
-      <span class="ledger__fallback-plate ledger__fallback-plate--back" />
-      <span class="ledger__fallback-plate ledger__fallback-plate--mid" />
-      <span class="ledger__fallback-plate ledger__fallback-plate--front">
-        <span />
-        <i />
-      </span>
-    </div>
+      <div v-if="fallback" class="ledger__fallback" aria-hidden="true">
+        <span class="ledger__fallback-plate ledger__fallback-plate--back" />
+        <span class="ledger__fallback-plate ledger__fallback-plate--mid" />
+        <span class="ledger__fallback-plate ledger__fallback-plate--front">
+          <span />
+          <i />
+        </span>
+      </div>
 
-    <div class="ledger__top">
-      <span class="ledger__eyebrow">The archive</span>
-      <span class="ledger__count">
-        {{ modules.length.toString().padStart(2, '0') }} plates
-        <i />
-      </span>
+      <div class="ledger__top">
+        <span class="ledger__eyebrow">The archive</span>
+        <span class="ledger__count">
+          {{ modules.length.toString().padStart(2, '0') }} plates
+          <i />
+        </span>
+      </div>
     </div>
 
     <div class="ledger__index" aria-label="Archive modules">
@@ -642,6 +643,10 @@ onBeforeUnmount(() => {
 .ledger--compact {
   min-height: 28rem;
 }
+.ledger__stage {
+  position: absolute;
+  inset: 0;
+}
 .ledger__canvas {
   position: absolute;
   inset: 0;
@@ -669,8 +674,13 @@ onBeforeUnmount(() => {
   top: 1.15rem;
 }
 .ledger__bottom {
-  bottom: 1.15rem;
+  right: 0;
+  bottom: 0;
+  left: 0;
   align-items: flex-end;
+  padding: 0.85rem 1.3rem;
+  border-top: 1px solid #2a3040;
+  background: #0b0e13;
 }
 .ledger__eyebrow {
   font-size: 0.82rem;
@@ -810,31 +820,39 @@ onBeforeUnmount(() => {
 @media (max-width: 760px) {
   .ledger,
   .ledger--compact {
-    min-height: 30rem;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+  .ledger__stage {
+    position: relative;
+    inset: auto;
+    flex: none;
+    height: 22rem;
   }
   .ledger__index {
-    top: auto;
-    right: 1rem;
-    bottom: 4.4rem;
-    left: 1rem;
-    width: auto;
+    position: static;
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 0 0.4rem;
+    width: auto;
+    padding: 0.65rem 1rem;
+    border-top: 1px solid #2a3040;
+    background: #0b0e13;
   }
   .ledger__index-item {
-    font-size: 0.7rem;
-    padding: 0.3rem 0.35rem;
+    font-size: 0.72rem;
+    padding: 0.34rem 0.35rem;
   }
   .ledger__bottom {
-    right: 1rem;
-    left: 1rem;
+    position: static;
+    padding: 0.8rem 1rem;
   }
   .ledger__hint {
     display: none;
   }
   .ledger__readout p {
-    max-width: 15rem;
+    max-width: none;
   }
   .ledger__top {
     left: 1rem;

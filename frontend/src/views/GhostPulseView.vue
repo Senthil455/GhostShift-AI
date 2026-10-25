@@ -621,8 +621,8 @@ onMounted(async () => {
   place-items: center;
   width: 1.8rem;
   height: 1.8rem;
-  border-radius: 50%;
-  border: 1px solid var(--line);
+  border: 1px solid var(--line-strong);
+  border-radius: 0;
   color: var(--text-muted);
   flex: none;
 }

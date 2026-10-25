@@ -784,8 +784,8 @@ onBeforeUnmount(stopPolling)
   margin: 0.55rem 0 0.15rem;
   font-family: var(--font-display);
   font-size: 1.7rem;
-  font-weight: 470;
-  letter-spacing: -0.02em;
+  font-weight: 600;
+  letter-spacing: -0.04em;
   line-height: 1.1;
 }
 .plan__path {

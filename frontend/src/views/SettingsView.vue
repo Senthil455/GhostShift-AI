@@ -1071,9 +1071,9 @@ onMounted(load)
   place-items: center;
   width: 1.9rem;
   height: 1.9rem;
-  border: 1px solid var(--line);
-  border-radius: 50%;
-  color: var(--accent);
+  border: 1px solid var(--line-strong);
+  border-radius: 0;
+  color: var(--signal);
   flex: none;
 }
 .folder-row__copy {
@@ -1178,9 +1178,9 @@ onMounted(load)
   place-items: center;
   width: 2rem;
   height: 2rem;
-  border: 1px solid var(--line);
-  border-radius: 50%;
-  color: var(--accent);
+  border: 1px solid var(--line-strong);
+  border-radius: 0;
+  color: var(--signal);
   flex: none;
 }
 .data-action div {
@@ -1289,7 +1289,7 @@ onMounted(load)
   bottom: 0.45rem;
   width: 7px;
   height: 7px;
-  border-radius: 50%;
+  border-radius: 0;
   background: #c6e6a5;
 }
 .theme-option__swatch--light i:first-child {

@@ -603,8 +603,8 @@ onMounted(async () => {
   margin: 0.45rem 0 0;
   font-family: var(--font-display);
   font-size: clamp(1.3rem, 2vw, 1.65rem);
-  font-weight: 470;
-  letter-spacing: -0.02em;
+  font-weight: 600;
+  letter-spacing: -0.04em;
 }
 .capture-start__intro p {
   margin: 0.55rem 0 0;
@@ -679,8 +679,8 @@ onMounted(async () => {
   margin: 0.5rem 0 0.2rem;
   font-family: var(--font-display);
   font-size: 1.55rem;
-  font-weight: 470;
-  letter-spacing: -0.02em;
+  font-weight: 600;
+  letter-spacing: -0.04em;
 }
 .recording-head p {
   margin: 0;
