@@ -1,0 +1,34 @@
+# Build output
+backend/build/
+backend/.gradle/
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+frontend/coverage/
+.tools/
+.taste-skill/
+
+# Local runtime data
+data/
+*.db
+*.db-shm
+*.db-wal
+logs/
+reports/
+
+# Environment
+.env
+.env.local
+!.env.example
+
+# Editors / OS
+.idea/
+.vscode/
+*.iml
+.DS_Store
+Thumbs.db
+debug.log
+
+# Playwright
+test-results/
+playwright-report/

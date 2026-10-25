@@ -1,0 +1,49 @@
+micronaut:
+  application:
+    name: ghostshift-ai
+  server:
+    host: ${GHOSTSHIFT_HOST:127.0.0.1}
+    port: ${GHOSTSHIFT_PORT:8080}
+    max-request-size: 2MB
+    cors:
+      enabled: true
+      configurations:
+        local:
+          allowedOrigins:
+            - http://localhost:5173
+            - http://127.0.0.1:5173
+            - http://localhost:4173
+            - http://127.0.0.1:4173
+          allowedMethods:
+            - GET
+            - POST
+            - PUT
+            - PATCH
+            - DELETE
+            - OPTIONS
+          allowedHeaders:
+            - Content-Type
+            - Authorization
+            - X-GhostShift-Recording
+          exposedHeaders:
+            - X-Request-Id
+  router:
+    static-resources:
+      enabled: false
+
+ghostshift:
+  data-dir: ${GHOSTSHIFT_DATA_DIR:data}
+  max-scan-depth: 3
+  max-scan-files: 1000
+  max-log-bytes: 2097152
+  ai:
+    endpoint: ${OLLAMA_ENDPOINT:http://localhost:11434}
+    model: ${OLLAMA_MODEL:gemma2:2b}
+    timeout-seconds: 120
+    max-input-chars: 12000
+  api-token: ${GHOSTSHIFT_API_TOKEN:}
+
+logger:
+  levels:
+    ai.ghostshift: INFO
+    root: WARN
