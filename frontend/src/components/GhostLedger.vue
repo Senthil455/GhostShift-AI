@@ -101,8 +101,13 @@ function buildScene() {
   scene = new THREE.Scene()
   scene.fog = new THREE.FogExp2(0x0b0e13, 0.026)
   camera = new THREE.PerspectiveCamera(34, 1, 0.1, 100)
-  camera.position.set(5.35, 3.35, 6.7)
-  camera.lookAt(0, 0.1, 0)
+  if (props.mode === 'compact') {
+    camera.position.set(4.95, 3.1, 6.2)
+    camera.lookAt(0, 0.05, 0)
+  } else {
+    camera.position.set(5.35, 3.35, 6.7)
+    camera.lookAt(0, 0.1, 0)
+  }
 
   pivot = new THREE.Group()
   spin = new THREE.Group()
@@ -632,6 +637,8 @@ onBeforeUnmount(() => {
 <style scoped>
 .ledger {
   position: relative;
+  display: flex;
+  flex-direction: column;
   min-height: 35rem;
   overflow: hidden;
   isolation: isolate;
@@ -644,8 +651,9 @@ onBeforeUnmount(() => {
   min-height: 28rem;
 }
 .ledger__stage {
-  position: absolute;
-  inset: 0;
+  position: relative;
+  flex: 1;
+  min-height: 0;
 }
 .ledger__canvas {
   position: absolute;
@@ -674,9 +682,8 @@ onBeforeUnmount(() => {
   top: 1.15rem;
 }
 .ledger__bottom {
-  right: 0;
-  bottom: 0;
-  left: 0;
+  position: static;
+  flex: none;
   align-items: flex-end;
   padding: 0.85rem 1.3rem;
   border-top: 1px solid #2a3040;
