@@ -43,6 +43,7 @@ let moved = 0
 let lastFrame = 0
 let resizeObserver: ResizeObserver | null = null
 let intersectionObserver: IntersectionObserver | null = null
+let motionQuery: MediaQueryList | null = null
 const pointerNdc = new THREE.Vector2()
 const raycaster = new THREE.Raycaster()
 const plateMeshes: THREE.Mesh[] = []
@@ -336,11 +337,6 @@ function buildScene() {
   addDisposable(particleGeometry)
   addDisposable(particleMaterial)
 
-  if (props.mode === 'compact') {
-    camera.position.set(5.65, 2.9, 7.15)
-    camera.lookAt(0, 0.25, 0)
-  }
-
   bindEvents()
   resize()
   applyHover()
@@ -362,7 +358,19 @@ function renderOnce() {
   if (renderer && scene && camera) renderer.render(scene, camera)
 }
 
+function applyDragTransform() {
+  if (spin) spin.rotation.y = dragY
+  if (pivot) {
+    pivot.rotation.x = dragX
+    pivot.rotation.z = 0
+  }
+}
+
 function start() {
+  if (reduced) {
+    renderOnce()
+    return
+  }
   if (running || !visible) return
   running = true
   lastFrame = performance.now()
@@ -835,7 +843,7 @@ onBeforeUnmount(() => {
     position: relative;
     inset: auto;
     flex: none;
-    height: 22rem;
+    height: 24rem;
   }
   .ledger__index {
     position: static;

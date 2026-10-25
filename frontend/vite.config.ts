@@ -9,6 +9,11 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
   },
+  optimizeDeps: {
+    // The 3D route is the first to load Three.js. Pre-bundle it at server start
+    // so the welcome redirect does not pay a cold transform cost in E2E.
+    include: ['three'],
+  },
   server: {
     host: '127.0.0.1',
     port: 5173,
